@@ -1,0 +1,165 @@
+naziv_srpskom	naziv_latinskom	grupa
+Divlja guska	Anser anser	1
+Lisasta guska	Anser albifrons	1
+Labud grbac	Cygnus olor	1
+Plovka kašikara	Spatula querquedula	1
+Zviždara	Mareca penelope	1
+Gluvara	Anas platyrhynchos	1
+Krdža	Anas crecca	1
+Prepelica	Coturnix coturnix	2
+Fazan	Phasianus colchicus	2
+Jarebica	Perdix perdix	2
+Leštarka	Tetrastes bonasia	2
+Mali gnjurac	Tachybaptus ruficollis	1
+Ćubasti gnjurac	Podiceps cristatus	1
+Divlji golub (ssp. domestica)	Columba livia	3
+Golub dupljaš	Columba oenas	3
+Golub grivnaš	Columba palumbus	3
+Grlica	Streptopelia turtur	3
+Gugutka	Streptopelia decaocto	3
+Kukavica	Cuculus canorus	3
+Leganj	Caprimulgus europaeus	4
+Bela čiopa	Tachymarptis melba	5
+Crna čiopa	Apus apus	5
+Barski petlovan	Rallus aquaticus	6
+Barski petlić	Porzana porzana	6
+Sivi barski petlić	Zapornia parva	6
+Prdavac	Crex crex	6
+Barska kokica	Gallinula chloropus	6
+Liska	Fulica atra	6
+Ždral	Grus grus	7
+Vlastelica	Himantopus himantopus	7
+Sabljarka	Recurvirostra avosetta	7
+Vivak	Vanellus vanellus	7
+Žalar slepić	Charadrius dubius	7
+Carska šljuka	Numenius arquata	8
+Muljača	Limosa limosa	8
+Šumska šljuka	Scolopax rusticola	8
+Barska šljuka	Gallinago gallinago	8
+Polojka	Actitis hypoleucos	8
+Sprudnik pijukavac	Tringa ochropus	8
+Sprudnik migavac	Tringa glareola	8
+Crvenonogi sprudnik	Tringa totanus	8
+Obični galeb	Chroicocephalus ridibundus	9
+Belobrka čigra	Chlidonias hybrida	9
+Obična čigra	Sterna hirundo	9
+Bela roda	Ciconia ciconia	9
+Vodeni bik	Botaurus stellaris	9
+Čapljica	Ixobrychus minutus	9
+Siva čaplja	Ardea cinerea	9
+Gak	Nycticorax nycticorax	9
+Eja močvarica	Circus aeruginosus	5
+Kobac	Accipiter nisus	5
+Jastreb	Accipiter gentilis	5
+Crna lunja	Milvus migrans	5
+Belorepan	Haliaeetus albicilla	5
+Mišar	Buteo buteo	5
+Kukuvija	Tyto alba	4
+Ćuk	Otus scops	4
+Buljina	Bubo bubo	4
+Kukumavka	Athene noctua	4
+Šumska sova	Strix aluco	4
+Dugorepa sova	Strix uralensis	4
+Utina	Asio otus	4
+Gaćasta kukumavka	Aegolius funereus	4
+Pupavac	Upupa epops	10
+Vodomar	Alcedo atthis	10
+Pčelarica	Merops apiaster	10
+Modrovrana	Coracias garrulus	10
+Vijoglava	Jynx torquilla	11
+Srednji detlić	Dendrocoptes medius	11
+Veliki detlić	Dendrocopos major	11
+Seoski detlić	Dendrocopos syriacus	11
+Mali detlić	Dryobates minor	11
+Siva žuna	Picus canus	11
+Zelena žuna	Picus viridis	11
+Crna žuna	Dryocopus martius	11
+Vetruška	Falco tinnunculus	5
+Siva vetruška	Falco vespertinus	5
+Lastavičar	Falco subbuteo	5
+Sivi soko	Falco peregrinus	5
+Rusi svračak	Lanius collurio	12
+Vuga	Oriolus oriolus	12
+Sojka	Garrulus glandarius	12
+Svraka	Pica pica	12
+Leštarka	Nucifraga caryocatactes	12
+Čavka	Coloeus monedula	12
+Gačac	Corvus frugilegus	12
+Vrana	Corvus cornix	12
+Gavran	Corvus corax	12
+Šumska ševa	Lullula arborea	13
+Poljska ševa	Alauda arvensis	13
+Ćubasta ševa	Galerida cristata	13
+Bregunica	Riparia riparia	13
+Seoska lasta	Hirundo rustica	13
+Gradska lasta	Delichon urbicum	13
+Jelova senica	Periparus ater	14
+Ćubasta senica	Lophophanes cristatus	14
+Senica šljivarka	Poecile lugubris	14
+Siva senica	Poecile palustris	14
+Planinska siva senica	Poecile montanus	14
+Plava senica	Cyanistes caeruleus	14
+Velika senica	Parus major	14
+Senica vuga	Remiz pendulinus	14
+Dugorepa senica	Aegithalos caudatus	14
+Brkata senica	Panurus biarmicus	14
+Brgljez	Sitta europaea	15
+Kratkokljuni puzić	Certhia familiaris	15
+Dugokljuni puzić	Certhia brachydactyla	15
+Carić	Troglodytes troglodytes	15
+Kraljić	Regulus regulus	15
+Vatroglavi kraljić	Regulus ignicapilla	15
+Svilorepi cvrčić	Cettia cetti	16
+Šumski zviždak	Phylloscopus sibilatrix	16
+Obični zviždak	Phylloscopus collybita	16
+Sivi voljić	Iduna pallida	16
+Žuti voljić	Hippolais icterina	16
+Trstenjak rogožar	Acrocephalus schoenobaenus	16
+Trstenjak mlakar	Acrocephalus palustris	16
+RTrstenjak cvrkutić	Acrocephalus scirpaceus	16
+Veliki trstenjak	Acrocephalus arundinaceus	16
+Obični cvrčić	Locustella fluviatilis	16
+Cvrčić potočar	Locustella luscinioides	16
+Cvrčić trščar	Locustella naevia	16
+Crnoglava grmuša	Sylvia atricapilla	17
+Pirgasta grmuša	Curruca nisoria	17
+Grmuša čavrljanka	Curruca curruca	17
+Obična grmuša	Curruca communis	17
+Obična muharica	Muscicapa striata	18
+Crvendać	Erithacus rubecula	19
+Mali slavuj	Luscinia megarhynchos	18
+Modrovoljka	Luscinia svecica	18
+Mala muharica	Ficedula parva	18
+Belovrata muharica	Ficedula albicollis	18
+Obična crvenrepka	Phoenicurus phoenicurus	18
+Crna crvenrepka	Phoenicurus ochruros	18
+Obična travarka	Saxicola rubetra	18
+Crnoglava travarka	Saxicola rubicola	18
+Obična beloguza	Oenanthe oenanthe	18
+Drozd imelaš	Turdus viscivorus	19
+Drozd pevač	Turdus philomelos	19
+Kos	Turdus merula	19
+Drozd borovnjak	Turdus pilaris	19
+Čvorak	Sturnus vulgaris	18
+Obični popić	Prunella modularis	19
+Potočna pliska	Motacilla cinerea	20
+Žuta pliska	Motacilla flava	20
+Bela pliska	Motacilla alba	20
+Obična trepteljka	Anthus campestris	20
+Šumska trepteljka	Anthus trivialis	20
+Zeba	Fringilla coelebs	21
+Batokljun	Coccothraustes coccothraustes	21
+Zimovka	Pyrrhula pyrrhula	21
+Zelentarka	Chloris chloris	21
+Konopljarka	Linaria cannabina	21
+Češljugar	Carduelis carduelis	21
+Žutarica	Serinus serinus	21
+Čižak	Spinus spinus	21
+Velika strnadica	Emberiza calandra	22
+Strnadica kamenjarka	Emberiza cia	22
+Crnogrla strnadica	Emberiza cirlus	22
+Strnadica žutovoljka	Emberiza citrinella	22
+Vinogradska strnadica	Emberiza hortulana	22
+Barska strnadica	Emberiza schoeniclus	22
+Vrabac pokućar	Passer domesticus	22
+Poljski vrabac	Passer montanus	22

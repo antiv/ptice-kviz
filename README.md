@@ -1,46 +1,68 @@
-# Getting Started with Create React App
+# Kviz o Pticama - Aplikacija za Prepoznavanje Ptica po Zvuku
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Ovo je veb aplikacija napravljena u React-u koja omogućava korisnicima da testiraju svoje znanje u prepoznavanju ptica na osnovu njihovih zvukova.
 
-## Available Scripts
+## Tehnologije
 
-In the project directory, you can run:
+*   **Frontend:** React (sa TypeScript-om)
+*   **Backend & Baza:** Supabase (PostgreSQL, Storage, Auth)
+*   **Stilovi:** React-Bootstrap & Bootstrap
 
-### `npm start`
+## Podešavanje projekta
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Da biste pokrenuli ovu aplikaciju lokalno, pratite sledeće korake.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 1. Klonirajte repozitorijum
 
-### `npm test`
+```bash
+git clone <URL_REPOZITORIJUMA>
+cd ptice-kviz
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 2. Instalirajte zavisnosti
 
-### `npm run build`
+```bash
+npm install
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 3. Podesite Supabase
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Potrebno je da imate Supabase nalog i kreiran projekat.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**a. Kreiranje tabela:**
 
-### `npm run eject`
+*   U vašem Supabase projektu, idite na **SQL Editor**.
+*   Kopirajte ceo sadržaj fajla `supabase.sql` koji se nalazi u root direktorijumu projekta.
+*   Nalepite SQL kod u editor i kliknite **RUN**.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+**b. Podešavanje Skladišta (Storage):**
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+*   Idite na **Storage** u vašem Supabase projektu.
+*   Kreirajte novi "bucket". Preporučujemo da ga nazovete `zvuk`.
+*   U ovaj bucket, postavite vaše audio fajlove (`.mp3`). **Naziv svakog fajla mora tačno odgovarati unosu u koloni `naziv_latinskom`** u vašoj `ptice` tabeli (npr. `Parus major.mp3`).
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+**c. Popunjavanje podataka o pticama:**
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+*   Idite na **Table Editor** i izaberite tabelu `ptice`.
+*   Dodajte redove za svaku pticu, popunjavajući `naziv_srpskom`, `naziv_latinskom` i `grupa`.
 
-## Learn More
+**d. Konfiguracija okruženja:**
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+*   Pronađite vaše API ključeve u **Project Settings > API**.
+*   U root direktorijumu projekta, kreirajte fajl `.env`.
+*   Kopirajte sadržaj iz `.env.example` i zamenite vrednosti sa vašim Supabase URL-om i `anon` ključem:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+    ```
+    REACT_APP_SUPABASE_URL=VAŠ_SUPABASE_URL
+    REACT_APP_SUPABASE_ANON_KEY=VAŠ_SUPABASE_ANON_KLJUČ
+    ```
+
+### 4. Pokrenite aplikaciju
+
+Kada ste završili sa podešavanjem, pokrenite razvojni server:
+
+```bash
+npm start
+```
+
+Aplikacija bi trebalo da bude dostupna na [http://localhost:3000](http://localhost:3000).

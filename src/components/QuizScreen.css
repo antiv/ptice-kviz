@@ -1,0 +1,47 @@
+.bg-light-success {
+  background-color: rgba(25, 135, 84, 0.1) !important;
+}
+
+.bg-light-danger {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
+.bg-light-secondary {
+  background-color: rgba(108, 117, 125, 0.1) !important;
+}
+
+.answer-selected {
+  border-color: #0d6efd !important;
+  border-width: 3px !important;
+  background-color: rgba(13, 110, 253, 0.1) !important;
+}
+
+/* Remove shadows and fix button styling */
+.list-group-item {
+  box-shadow: none !important;
+  border: 1px solid #dee2e6 !important;
+}
+
+.list-group-item:first-child {
+  border-top-left-radius: 0.75rem !important;
+  border-top-right-radius: 0.75rem !important;
+}
+
+.list-group-item:last-child {
+  border-bottom-left-radius: 0.75rem !important;
+  border-bottom-right-radius: 0.75rem !important;
+}
+
+/* Ensure consistent height for all options */
+.list-group-item {
+  min-height: 60px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 12px 16px !important;
+}
+
+/* Remove button-specific styling that interferes */
+.list-group-item.btn {
+  border-radius: 0.75rem !important;
+  margin-bottom: 8px !important;
+}
