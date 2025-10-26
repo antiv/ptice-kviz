@@ -4,17 +4,20 @@ import StartScreen from './components/StartScreen';
 import QuizScreen from './components/QuizScreen';
 import ResultsScreen from './components/ResultsScreen';
 import LoginScreen from './components/LoginScreen';
+import QuizHistoryModal from './components/QuizHistoryModal';
+import AdminPanel from './components/AdminPanel';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { QuizAttempt } from './types';
-import { Dropdown } from 'react-bootstrap';
+import { Dropdown, Button, Alert } from 'react-bootstrap';
 
-type GameState = 'start' | 'quiz' | 'results';
+type GameState = 'start' | 'quiz' | 'results' | 'admin';
 
 const AppContent: React.FC = () => {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, isAuthorized, unauthorizedMessage } = useAuth();
   const [gameState, setGameState] = useState<GameState>('start');
   const [quizSize, setQuizSize] = useState<number>(0);
   const [lastQuizAttempts, setLastQuizAttempts] = useState<QuizAttempt[]>([]);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   const startQuiz = (size: number, isOfficialTest?: boolean) => {
     setQuizSize(size);
@@ -39,6 +42,8 @@ const AppContent: React.FC = () => {
     localStorage.removeItem('isOfficialTest');
   };
 
+  const isAdmin = user?.email === 'admin@example.com';
+
   if (loading) {
     return (
       <div className="App container py-4">
@@ -54,8 +59,45 @@ const AppContent: React.FC = () => {
   if (!user) {
     return (
       <div className="App container py-4">
-        <h2 className="mb-4 text-primary text-break">Ptice Srbije - Oglašavanje</h2>
+        <div className="d-flex align-items-center gap-3 mb-4">
+          <img 
+            src={`${process.env.PUBLIC_URL}/icon.png`} 
+            alt="Ptice Srbije" 
+            style={{ width: '40px', height: '40px' }}
+            className="rounded-circle"
+          />
+          <h2 className="mb-0 text-primary text-break">Ptice Srbije - Oglašavanje</h2>
+        </div>
+        {unauthorizedMessage && (
+          <div className="alert alert-warning" role="alert">
+            {unauthorizedMessage}
+          </div>
+        )}
         <LoginScreen />
+      </div>
+    );
+  }
+
+  if (!isAuthorized) {
+    return (
+      <div className="App container py-4">
+        <div className="d-flex align-items-center gap-3 mb-4">
+          <img 
+            src={`${process.env.PUBLIC_URL}/icon.png`} 
+            alt="Ptice Srbije" 
+            style={{ width: '40px', height: '40px' }}
+            className="rounded-circle"
+          />
+          <h2 className="mb-0 text-primary text-break">Ptice Srbije - Oglašavanje</h2>
+        </div>
+        <Alert variant="danger">
+          {unauthorizedMessage || 'Nemate pristup ovoj aplikaciji.'}
+        </Alert>
+        <div className="text-center mt-3">
+          <Button variant="secondary" onClick={signOut}>
+            Odjavi se i pokušaj ponovo
+          </Button>
+        </div>
       </div>
     );
   }
@@ -63,7 +105,15 @@ const AppContent: React.FC = () => {
   return (
     <div className="App container py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="mb-0 text-primary text-break">Ptice Srbije - Oglašavanje</h2>
+        <div className="d-flex align-items-center gap-3">
+          <img 
+            src={`${process.env.PUBLIC_URL}/icon.png`} 
+            alt="Ptice Srbije" 
+            style={{ width: '40px', height: '40px' }}
+            className="rounded-circle"
+          />
+          <h2 className="mb-0 text-primary text-break">Ptice Srbije - Oglašavanje</h2>
+        </div>
         <div className="d-flex align-items-center gap-3">
           <Dropdown>
             <Dropdown.Toggle 
@@ -101,6 +151,18 @@ const AppContent: React.FC = () => {
                 {user.email}
               </Dropdown.ItemText>
               <Dropdown.Divider />
+              <Dropdown.Item onClick={() => setShowHistoryModal(true)}>
+                Istorija
+              </Dropdown.Item>
+              {isAdmin && (
+                <>
+                  <Dropdown.Divider />
+                  <Dropdown.Item onClick={() => setGameState('admin')}>
+                    Admin Panel
+                  </Dropdown.Item>
+                </>
+              )}
+              <Dropdown.Divider />
               <Dropdown.Item onClick={signOut} className="text-danger">
                 Odjavi se
               </Dropdown.Item>
@@ -111,6 +173,30 @@ const AppContent: React.FC = () => {
       {gameState === 'start' && <StartScreen onStart={startQuiz} userEmail={user.email || ''} />}
       {gameState === 'quiz' && <QuizScreen quizSize={quizSize} onFinish={showResults} />}
       {gameState === 'results' && <ResultsScreen attempts={lastQuizAttempts} onRestart={restartQuiz} />}
+      {gameState === 'admin' && (
+        <div className="row justify-content-center">
+          <div className="col-md-8">
+            <AdminPanel />
+            <div className="text-center mt-3">
+              <Button variant="outline-secondary" onClick={() => setGameState('start')}>
+                Nazad na početnu
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <QuizHistoryModal 
+        show={showHistoryModal} 
+        onHide={() => setShowHistoryModal(false)} 
+        userEmail={user.email || ''} 
+      />
+      
+      <div className="text-center mt-4 mb-2">
+        <small className="text-muted">
+          Oglašavanja preuzeta sa <a href="https://xeno-canto.org/" target="_blank" rel="noopener noreferrer" className="text-decoration-none">xeno-canto.org</a>
+        </small>
+      </div>
     </div>
   );
 };

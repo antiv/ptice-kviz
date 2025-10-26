@@ -105,7 +105,7 @@ const ResultsScreen: React.FC<Props> = ({ attempts, onRestart }) => {
             onClick={onRestart} 
             className="rounded-3 py-3"
           >
-            Igraj ponovo
+            Pokreni ponovo
           </Button>
         </div>
       </Card.Body>

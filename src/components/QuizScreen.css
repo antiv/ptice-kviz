@@ -1,18 +1,21 @@
 .bg-light-success {
-  background-color: rgba(25, 135, 84, 0.1) !important;
+  background-color: rgba(118, 180, 106, 0.1) !important;
+  border-color: #2c6420 !important;
 }
 
 .bg-light-danger {
   background-color: rgba(220, 53, 69, 0.1) !important;
+  border-color: #7b141e !important;
 }
 
 .bg-light-secondary {
   background-color: rgba(108, 117, 125, 0.1) !important;
+  border-color: #0c4e87 !important;
 }
 
 .answer-selected {
   border-color: #0d6efd !important;
-  border-width: 3px !important;
+  border-width: 2px !important;
   background-color: rgba(13, 110, 253, 0.1) !important;
 }
 
@@ -44,4 +47,9 @@
 .list-group-item.btn {
   border-radius: 0.75rem !important;
   margin-bottom: 8px !important;
+}
+
+/* Hover efekat za odgovore */
+.list-group-item:hover {
+  background-color: rgba(13, 110, 253, 0.3) !important;
 }

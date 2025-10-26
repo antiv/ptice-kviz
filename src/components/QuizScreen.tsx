@@ -58,29 +58,53 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
       const sameGroupBirds = (birdsByGroup[correctBird.grupa] || []).filter(b => b.id !== correctBird.id);
       const wrongOptionsSameGroup = shuffleArray(sameGroupBirds).slice(0, 2);
 
+      // Dodaj 2 random opcije iz drugih grupa
       const otherGroups = Object.keys(birdsByGroup).filter(g => parseInt(g) !== correctBird.grupa);
-      let wrongOptionOtherGroup: Bird | undefined;
+      const wrongOptionsOtherGroups: Bird[] = [];
+      
       if (otherGroups.length > 0) {
-        const randomOtherGroupKey = shuffleArray(otherGroups)[0];
-        const randomOtherGroup = birdsByGroup[parseInt(randomOtherGroupKey)];
-        if (randomOtherGroup && randomOtherGroup.length > 0) {
-            wrongOptionOtherGroup = shuffleArray(randomOtherGroup)[0];
+        // Prva opcija iz druge grupe
+        const randomOtherGroupKey1 = shuffleArray(otherGroups)[0];
+        const randomOtherGroup1 = birdsByGroup[parseInt(randomOtherGroupKey1)];
+        if (randomOtherGroup1 && randomOtherGroup1.length > 0) {
+          wrongOptionsOtherGroups.push(shuffleArray(randomOtherGroup1)[0]);
+        }
+        
+        // Druga opcija iz druge grupe (može biti ista grupa kao prva)
+        const randomOtherGroupKey2 = shuffleArray(otherGroups)[0];
+        const randomOtherGroup2 = birdsByGroup[parseInt(randomOtherGroupKey2)];
+        if (randomOtherGroup2 && randomOtherGroup2.length > 0) {
+          const secondOption = shuffleArray(randomOtherGroup2).find(b => 
+            !wrongOptionsOtherGroups.some(o => o.id === b.id || o.naziv_srpskom === b.naziv_srpskom)
+          );
+          if (secondOption) {
+            wrongOptionsOtherGroups.push(secondOption);
+          }
         }
       }
 
-      const options: Bird[] = [correctBird, ...wrongOptionsSameGroup];
-      if (wrongOptionOtherGroup) {
-        options.push(wrongOptionOtherGroup);
-      }
+      const options: Bird[] = [correctBird, ...wrongOptionsSameGroup, ...wrongOptionsOtherGroups];
 
-      while (options.length < 4) {
-        const randomBird = shuffleArray(allBirds).find(b => !options.some(o => o.id === b.id));
+      // Ako nema dovoljno opcija, dodaj iz bilo koje grupe (5 ptica + "Ne znam" = 6 ukupno)
+      while (options.length < 5) {
+        const randomBird = shuffleArray(allBirds).find(b => 
+          !options.some(o => o.id === b.id || o.naziv_srpskom === b.naziv_srpskom)
+        );
+        
         if (randomBird) {
           options.push(randomBird);
+        } else {
+          // Ako nema više jedinstvenih opcija, prekini petlju
+          break;
         }
       }
 
-      const finalOptions = shuffleArray(options.slice(0, 4));
+      // Ukloni duplikate pre finalnog shuffle-a
+      const uniqueOptions = options.filter((option, index, self) => 
+        index === self.findIndex(o => o.id === option.id && o.naziv_srpskom === option.naziv_srpskom)
+      );
+      
+      const finalOptions = shuffleArray(uniqueOptions.slice(0, 5));
       const { data } = supabase.storage.from('zvuk').getPublicUrl(`${correctBird.naziv_latinskom}.mp3`);
 
       return {
@@ -298,7 +322,14 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
         </div>
         
         <div className="mb-4">
-          <audio key={currentQuestion.audioUrl} controls autoPlay src={currentQuestion.audioUrl}>
+          <audio 
+            key={currentQuestion.audioUrl} 
+            controls 
+            autoPlay 
+            src={currentQuestion.audioUrl}
+            controlsList="nodownload nofullscreen noremoteplayback"
+            style={{ width: '100%' }}
+          >
             Vaš pretraživač ne podržava audio element.
           </audio>
         </div>

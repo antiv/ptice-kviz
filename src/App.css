@@ -4,8 +4,11 @@ body {
 
 /* Override Bootstrap primary color to green */
 :root {
-  --bs-primary: #198754;
-  --bs-primary-rgb: 25, 135, 84;
+  --bs-primary: #76B46A;
+  --bs-primary-rgb: 118, 180, 106;
+  --bs-success: #76B46A;
+  --bs-success-rgb: 118, 180, 106;
+  --bs-btn-bg: #76B46A;
 }
 
 .App {
@@ -47,4 +50,14 @@ body {
 
 .dropdown-toggle:focus {
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+/* Dimmed modal styling */
+.quiz-history-modal-dimmed .modal-content {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.quiz-history-modal-dimmed .modal-backdrop {
+  opacity: 0.1;
 }
