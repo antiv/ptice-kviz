@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Ptice Oglašavanje",
+  "name": "Ptice Srbije - Oglašavanje",
+  "description": "Kviz o poznavanju oglašavanja ptica Srbije - testirajte svoje znanje!",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,18 +9,22 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "icon.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     },
     {
-      "src": "logo512.png",
+      "src": "icon.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     }
   ],
   "start_url": ".",
+  "scope": ".",
   "display": "standalone",
-  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "theme_color": "#0d6efd",
   "background_color": "#ffffff"
 }
