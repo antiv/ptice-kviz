@@ -93,6 +93,8 @@ const StartScreen: React.FC<Props> = ({ onStart, userEmail }) => {
             </ul>
           </div>
           
+          <h5 className="mb-3">Srećno!</h5>
+          
           <div className="row g-3">
             <div className="col-6 col-lg-3">
               <Button 
