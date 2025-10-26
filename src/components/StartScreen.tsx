@@ -82,7 +82,7 @@ const StartScreen: React.FC<Props> = ({ onStart, userEmail }) => {
     <div className="text-center">
       <Card className="shadow-sm mb-4">
         <Card.Body>
-          <Card.Title className="mb-3 text-primary">Pravila Kviza</Card.Title>
+          <Card.Title className="mb-3 text-primary">Pravila kviza</Card.Title>
           
           <div className="text-start mb-4">
             <ul className="list-unstyled">
