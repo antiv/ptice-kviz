@@ -13,14 +13,15 @@ const ResultsScreen: React.FC<Props> = ({ attempts, onRestart }) => {
   
   const totalScore = attempts.reduce((acc, attempt) => acc + attempt.points, 0);
   const successRate = Math.max(0, Math.round((totalScore / attempts.length) * 100));
-  const isSuccessful = successRate >= 40;
+  const isExcellent = successRate >= 70;
+  const isGood = successRate >= 40 && successRate < 70;
 
   return (
     <Card className="shadow-sm">
       <Card.Body className="text-center">
         {/* Celebration Animation */}
         <div className="mb-4">
-          {isSuccessful ? (
+          {isExcellent ? (
             <div className="celebration-animation">
               <div className="trophy-container">
                 <div className="trophy">🏆</div>
@@ -35,10 +36,16 @@ const ResultsScreen: React.FC<Props> = ({ attempts, onRestart }) => {
               <h3 className="text-success mb-2">Bravo! 🎉</h3>
               <p className="text-muted">Odličan rezultat!</p>
             </div>
+          ) : isGood ? (
+            <div className="encouragement-animation">
+              <div className="sad-face">😊</div>
+              <h3 className="text-warning mb-2">Nije loše!</h3>
+              <p className="text-muted">Pokušajte ponovo.</p>
+            </div>
           ) : (
             <div className="encouragement-animation">
               <div className="sad-face">😔</div>
-              <h3 className="text-warning mb-2">Nije loše!</h3>
+              <h3 className="text-warning mb-2">Ne gubite nadu!</h3>
               <p className="text-muted">Probajte ponovo, sigurno ćete biti bolji!</p>
             </div>
           )}
@@ -90,7 +97,7 @@ const ResultsScreen: React.FC<Props> = ({ attempts, onRestart }) => {
             onClick={onRestart} 
             className="rounded-3 py-3"
           >
-            Pokreni ponovo
+            Pokrenite ponovo
           </Button>
         </div>
       </Card.Body>
