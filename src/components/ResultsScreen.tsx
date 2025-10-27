@@ -1,8 +1,6 @@
-import React, { useEffect, useMemo } from 'react';
+import React from 'react';
 import { QuizAttempt } from '../types';
 import { Card, Button, ListGroup, Badge } from 'react-bootstrap';
-import { supabase } from '../supabaseClient';
-import { useAuth } from '../contexts/AuthContext';
 import './QuizScreen.css';
 
 interface Props {
@@ -11,55 +9,45 @@ interface Props {
 }
 
 const ResultsScreen: React.FC<Props> = ({ attempts, onRestart }) => {
-  const { user } = useAuth();
   const isOfficialTest = localStorage.getItem('isOfficialTest') === 'true';
   
-  const totalScore = useMemo(() => {
-    return attempts.reduce((acc, attempt) => acc + attempt.points, 0);
-  }, [attempts]);
-
-  useEffect(() => {
-    const saveResult = async () => {
-      if (!user?.email) {
-        console.error('Korisnik nije prijavljen');
-        return;
-      }
-
-      const resultToSave = {
-        broj_pitanja: attempts.length,
-        poeni: totalScore,
-        user_email: user.email,
-        zvanican_test: isOfficialTest,
-        rezultat: { // Storing detailed results in a JSONB field
-          attempts: attempts.map(a => ({
-            question: a.question.correctBird.naziv_srpskom,
-            userAnswer: a.userAnswer,
-            correctAnswer: a.question.correctBird.naziv_srpskom,
-            points: a.points
-          }))
-        }
-      };
-
-      const { error } = await supabase.from('rezultati_kviza').insert([resultToSave]);
-
-      if (error) {
-        console.error('Greška pri čuvanju rezultata:', error);
-        // Optionally, show an alert to the user
-      }
-    };
-
-    if (attempts.length > 0) {
-      saveResult();
-    }
-  }, [attempts, totalScore, user, isOfficialTest]);
+  const totalScore = attempts.reduce((acc, attempt) => acc + attempt.points, 0);
+  const successRate = Math.max(0, Math.round((totalScore / attempts.length) * 100));
+  const isSuccessful = successRate >= 50;
 
   return (
     <Card className="shadow-sm">
       <Card.Body className="text-center">
+        {/* Celebration Animation */}
+        <div className="mb-4">
+          {isSuccessful ? (
+            <div className="celebration-animation">
+              <div className="trophy-container">
+                <div className="trophy">🏆</div>
+                <div className="confetti">
+                  <div className="confetti-piece"></div>
+                  <div className="confetti-piece"></div>
+                  <div className="confetti-piece"></div>
+                  <div className="confetti-piece"></div>
+                  <div className="confetti-piece"></div>
+                </div>
+              </div>
+              <h3 className="text-success mb-2">Bravo! 🎉</h3>
+              <p className="text-muted">Odličan rezultat!</p>
+            </div>
+          ) : (
+            <div className="encouragement-animation">
+              <div className="sad-face">😔</div>
+              <h3 className="text-warning mb-2">Nije loše!</h3>
+              <p className="text-muted">Probajte ponovo, sigurno ćete biti bolji!</p>
+            </div>
+          )}
+        </div>
+
         <Card.Title className="mb-4">
           {isOfficialTest ? "Zvanični test je završen!" : "Kviz je završen!"}
         </Card.Title>
-        <h2 className="mb-4">Vaš rezultat: {totalScore} poena</h2>
+        <h2 className="mb-4">Vaš rezultat: {totalScore} poena ({successRate}%)</h2>
         {isOfficialTest && (
           <div className="alert alert-info mb-4">
             <strong>Zvanični test:</strong> Ovaj rezultat je sažet u zvaničnim rezultatima.

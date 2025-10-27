@@ -71,8 +71,12 @@ const QuizHistoryModal: React.FC<Props> = ({ show, onHide, userEmail }) => {
   };
 
   const calculateSuccessRate = (result: QuizResult) => {
-    const correctAnswers = result.rezultat.attempts.filter(attempt => attempt.points > 0).length;
-    return Math.round((correctAnswers / result.broj_pitanja) * 100);
+    // Ako su poeni negativni, uspešnost je 0%
+    if (result.poeni < 0) {
+      return 0;
+    }
+    // Uspešnost je % od broja pitanja (maksimalno mogući broj poena)
+    return Math.round((result.poeni / result.broj_pitanja) * 100);
   };
 
   return (

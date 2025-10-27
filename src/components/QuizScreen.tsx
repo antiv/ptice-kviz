@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient';
 import { Bird, Question, QuizAttempt } from '../types';
 import { Spinner, Alert, Card, Button, ListGroup } from 'react-bootstrap';
 import CircularTimer from './CircularTimer';
+import { useAuth } from '../contexts/AuthContext';
 import './QuizScreen.css';
 
 interface Props {
@@ -15,6 +16,7 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -26,6 +28,38 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const nextQuestionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasFinishedRef = useRef(false);
+
+  const saveQuizResult = async (attempts: QuizAttempt[]) => {
+    if (!user?.email) {
+      console.error('Korisnik nije prijavljen');
+      return;
+    }
+
+    const isOfficialTest = localStorage.getItem('isOfficialTest') === 'true';
+    const totalScore = attempts.reduce((acc, attempt) => acc + attempt.points, 0);
+
+    const resultToSave = {
+      broj_pitanja: attempts.length,
+      poeni: totalScore,
+      user_email: user.email,
+      zvanican_test: isOfficialTest,
+      rezultat: {
+        attempts: attempts.map(a => ({
+          question: a.question.correctBird.naziv_srpskom,
+          userAnswer: a.userAnswer,
+          correctAnswer: a.question.correctBird.naziv_srpskom,
+          points: a.points
+        }))
+      }
+    };
+
+    const { error } = await supabase.from('rezultati_kviza').insert([resultToSave]);
+
+    if (error) {
+      console.error('Greška pri čuvanju rezultata:', error);
+    }
+  };
 
   // (The generateQuestions function remains the same as the last version)
   const generateQuestions = useCallback((allBirds: Bird[], size: number): Question[] => {
@@ -182,7 +216,9 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
 
   useEffect(() => {
     // Finish quiz when all questions are answered
-    if (attempts.length === quizSize && quizSize > 0) {
+    if (attempts.length === quizSize && quizSize > 0 && !hasFinishedRef.current) {
+      hasFinishedRef.current = true;
+      saveQuizResult(attempts); // Save result before calling onFinish
       onFinish(attempts);
     }
   }, [attempts, quizSize, onFinish]);
