@@ -114,7 +114,7 @@ const QuizHistoryModal: React.FC<Props> = ({ show, onHide, userEmail }) => {
                     <td>{formatDate(result.created_at)}</td>
                     <td>{result.broj_pitanja}</td>
                     <td>
-                      <Badge bg={result.poeni >= result.broj_pitanja * 0.7 ? 'success' : result.poeni >= result.broj_pitanja * 0.5 ? 'warning' : 'danger'}>
+                      <Badge bg={result.poeni >= result.broj_pitanja * 0.7 ? 'success' : result.poeni >= result.broj_pitanja * 0.4 ? 'warning' : 'danger'}>
                         {result.poeni}
                       </Badge>
                     </td>

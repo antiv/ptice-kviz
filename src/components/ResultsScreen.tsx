@@ -13,7 +13,7 @@ const ResultsScreen: React.FC<Props> = ({ attempts, onRestart }) => {
   
   const totalScore = attempts.reduce((acc, attempt) => acc + attempt.points, 0);
   const successRate = Math.max(0, Math.round((totalScore / attempts.length) * 100));
-  const isSuccessful = successRate >= 50;
+  const isSuccessful = successRate >= 40;
 
   return (
     <Card className="shadow-sm">
@@ -44,9 +44,6 @@ const ResultsScreen: React.FC<Props> = ({ attempts, onRestart }) => {
           )}
         </div>
 
-        <Card.Title className="mb-4">
-          {isOfficialTest ? "Zvanični test je završen!" : "Kviz je završen!"}
-        </Card.Title>
         <h2 className="mb-4">Vaš rezultat: {totalScore} poena ({successRate}%)</h2>
         {isOfficialTest && (
           <div className="alert alert-info mb-4">
