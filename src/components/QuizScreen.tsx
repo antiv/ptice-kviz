@@ -209,19 +209,18 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
     // Auto-advance to next question after a delay
     if (isAnswered) {
       nextQuestionTimeoutRef.current = setTimeout(() => {
-        handleNextQuestion();
+        if (currentQuestionIndex < quizSize - 1) {
+          handleNextQuestion();
+        } else {
+          // This is the last question - finish the quiz after showing feedback
+          hasFinishedRef.current = true;
+          saveQuizResult(attempts);
+          onFinish(attempts);
+        }
       }, 2500); // Increased delay to show feedback
     }
-  }, [isAnswered, currentQuestionIndex]);
+  }, [isAnswered, currentQuestionIndex, quizSize, attempts, onFinish]);
 
-  useEffect(() => {
-    // Finish quiz when all questions are answered
-    if (attempts.length === quizSize && quizSize > 0 && !hasFinishedRef.current) {
-      hasFinishedRef.current = true;
-      saveQuizResult(attempts); // Save result before calling onFinish
-      onFinish(attempts);
-    }
-  }, [attempts, quizSize, onFinish]);
 
   const handleAnswerSelect = (answer: string, isTimeout: boolean = false) => {
     if (isTimeout) {
@@ -260,6 +259,9 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
       isCorrect,
       points,
     }]);
+    
+    // If this is the last question, the timeout will handle finishing the quiz
+    // If not, the timeout will advance to the next question
   };
 
   const handleNextQuestion = () => {
@@ -402,7 +404,7 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
               onClick={handleSkipQuestion}
               className="px-4"
             >
-              Sledeće pitanje
+              {currentQuestionIndex === quizSize - 1 ? 'Završi test' : 'Sledeće pitanje'}
             </Button>
           </div>
         )}

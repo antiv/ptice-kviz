@@ -66,7 +66,7 @@ const AppContent: React.FC = () => {
             style={{ width: '40px', height: '40px' }}
             className="rounded-circle"
           />
-          <h2 className="mb-0 text-primary text-break">Ptice Srbije - Oglašavanje</h2>
+          <h2 className="mb-0 text-success text-break">Ptice Srbije - Oglašavanje</h2>
         </div>
         {unauthorizedMessage && (
           <div className="alert alert-warning" role="alert">
@@ -88,7 +88,7 @@ const AppContent: React.FC = () => {
             style={{ width: '40px', height: '40px' }}
             className="rounded-circle"
           />
-          <h2 className="mb-0 text-primary text-break">Ptice Srbije - Oglašavanje</h2>
+          <h2 className="mb-0 text-success text-break">Ptice Srbije - Oglašavanje</h2>
         </div>
         <Alert variant="danger">
           {unauthorizedMessage || 'Nemate pristup ovoj aplikaciji.'}
@@ -112,7 +112,7 @@ const AppContent: React.FC = () => {
             style={{ width: '40px', height: '40px' }}
             className="rounded-circle"
           />
-          <h2 className="mb-0 text-primary text-break">Ptice Srbije - Oglašavanje</h2>
+          <h2 className="mb-0 text-success text-break">Ptice Srbije - Oglašavanje</h2>
         </div>
         <div className="d-flex align-items-center gap-3">
           <Dropdown>

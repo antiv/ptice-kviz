@@ -46,7 +46,7 @@ const ResultsScreen: React.FC<Props> = ({ attempts, onRestart }) => {
             <div className="encouragement-animation">
               <div className="sad-face">😔</div>
               <h3 className="text-warning mb-2">Ne gubite nadu!</h3>
-              <p className="text-muted">Probajte ponovo, sigurno ćete biti bolji!</p>
+              <p className="text-muted">Probajte ponovo, sigurno će biti bolje!</p>
             </div>
           )}
         </div>
