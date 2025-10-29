@@ -396,18 +396,17 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
             </ListGroup.Item>
         </ListGroup>
         
-        {!isAnswered && (
-          <div className="mt-3">
-            <Button 
-              variant="outline-secondary" 
-              size="lg"
-              onClick={handleSkipQuestion}
-              className="px-4"
-            >
-              {currentQuestionIndex === quizSize - 1 ? 'Završi test' : 'Sledeće pitanje'}
-            </Button>
-          </div>
-        )}
+        <div className="mt-3">
+          <Button 
+            variant="outline-secondary" 
+            size="lg"
+            onClick={handleSkipQuestion}
+            disabled={isAnswered}
+            className="px-4"
+          >
+            {currentQuestionIndex === quizSize - 1 ? 'Rezultati' : 'Sledeće pitanje'}
+          </Button>
+        </div>
       </Card.Body>
     </Card>
   );
