@@ -69,21 +69,26 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
     }, {} as Record<number, Bird[]>);
 
     let questionBirds: Bird[] = [];
+    const usedBirdIds = new Set<number>();
     const availableGroups = shuffleArray(Object.keys(birdsByGroup));
     
     for (const groupId of availableGroups) {
       if (questionBirds.length >= size) break;
       const groupBirds = birdsByGroup[parseInt(groupId)];
-      if (groupBirds.length > 0) {
-        questionBirds.push(shuffleArray(groupBirds)[0]);
+      const availableBirdsInGroup = groupBirds.filter(b => !usedBirdIds.has(b.id));
+      if (availableBirdsInGroup.length > 0) {
+        const selectedBird = shuffleArray(availableBirdsInGroup)[0];
+        questionBirds.push(selectedBird);
+        usedBirdIds.add(selectedBird.id);
       }
     }
 
-    let remainingBirds = allBirds.filter(b => !questionBirds.some(qb => qb.id === b.id));
+    let remainingBirds = allBirds.filter(b => !usedBirdIds.has(b.id));
     while (questionBirds.length < size && remainingBirds.length > 0) {
         const randomBird = shuffleArray(remainingBirds)[0];
         questionBirds.push(randomBird);
-        remainingBirds = remainingBirds.filter(b => b.id !== randomBird.id);
+        usedBirdIds.add(randomBird.id);
+        remainingBirds = remainingBirds.filter(b => !usedBirdIds.has(b.id));
     }
     
     questionBirds = shuffleArray(questionBirds);
