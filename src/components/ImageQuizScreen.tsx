@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../supabaseClient';
-import { Bird, Question, QuizAttempt } from '../types';
-import { Spinner, Alert, Card, Button, ListGroup } from 'react-bootstrap';
+import { Bird, BirdWithImages, Question, QuizAttempt } from '../types';
+import { Spinner, Alert, Card, Button, ListGroup, Modal } from 'react-bootstrap';
 import CircularTimer from './CircularTimer';
 import { useAuth } from '../contexts/AuthContext';
 import './QuizScreen.css';
@@ -15,7 +15,26 @@ function shuffleArray<T>(array: T[]): T[] {
   return [...array].sort(() => Math.random() - 0.5);
 }
 
-const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
+const AUTHOR_MAP: Record<string, string> = {
+  'JNA': 'Jelena Nikolić Antonijević',
+  'BO': 'Boris Okanović',
+  'MM': 'Miroslav Mareš',
+  'EK': 'Ekaterina Krasnova',
+  'ZN': 'Zorana Nikodijević',
+  'DS': 'Dragan Stanojević',
+  'MR': 'Mirjana Rankov',
+};
+
+const getAuthorName = (imageFileName: string): string | null => {
+  if (!imageFileName) return null;
+  const match = imageFileName.match(/^([A-Z]{2,3})_/);
+  if (match && match[1]) {
+    return AUTHOR_MAP[match[1]] || null;
+  }
+  return null;
+};
+
+const ImageQuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +44,8 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [timer, setTimer] = useState(30);
+  const [showImagePreview, setShowImagePreview] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const nextQuestionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -37,7 +58,7 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
     }
 
     const isOfficialTest = localStorage.getItem('isOfficialTest') === 'true';
-    const quizType = localStorage.getItem('quizType') || 'oglasavanje';
+    const quizType = localStorage.getItem('quizType') || 'slike';
     const totalScore = attempts.reduce((acc, attempt) => acc + attempt.points, 0);
 
     const resultToSave = {
@@ -63,17 +84,17 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
     }
   };
 
-  // (The generateQuestions function remains the same as the last version)
-  const generateQuestions = useCallback((allBirds: Bird[], size: number): Question[] => {
+  const generateQuestions = useCallback((allBirds: BirdWithImages[], size: number, isOfficialTest: boolean): Question[] => {
     const birdsByGroup = allBirds.reduce((acc, bird) => {
       (acc[bird.grupa] = acc[bird.grupa] || []).push(bird);
       return acc;
-    }, {} as Record<number, Bird[]>);
+    }, {} as Record<number, BirdWithImages[]>);
 
-    let questionBirds: Bird[] = [];
+    let questionBirds: BirdWithImages[] = [];
     const usedBirdIds = new Set<number>();
     const availableGroups = shuffleArray(Object.keys(birdsByGroup));
     
+    // Prvo uzmi po jednu pticu iz svake grupe
     for (const groupId of availableGroups) {
       if (questionBirds.length >= size) break;
       const groupBirds = birdsByGroup[parseInt(groupId)];
@@ -85,6 +106,7 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
       }
     }
 
+    // Popuni preostale ako treba
     let remainingBirds = allBirds.filter(b => !usedBirdIds.has(b.id));
     while (questionBirds.length < size && remainingBirds.length > 0) {
         const randomBird = shuffleArray(remainingBirds)[0];
@@ -104,14 +126,12 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
       const wrongOptionsOtherGroups: Bird[] = [];
       
       if (otherGroups.length > 0) {
-        // Prva opcija iz druge grupe
         const randomOtherGroupKey1 = shuffleArray(otherGroups)[0];
         const randomOtherGroup1 = birdsByGroup[parseInt(randomOtherGroupKey1)];
         if (randomOtherGroup1 && randomOtherGroup1.length > 0) {
           wrongOptionsOtherGroups.push(shuffleArray(randomOtherGroup1)[0]);
         }
         
-        // Druga opcija iz druge grupe (može biti ista grupa kao prva)
         const randomOtherGroupKey2 = shuffleArray(otherGroups)[0];
         const randomOtherGroup2 = birdsByGroup[parseInt(randomOtherGroupKey2)];
         if (randomOtherGroup2 && randomOtherGroup2.length > 0) {
@@ -126,7 +146,7 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
 
       const options: Bird[] = [correctBird, ...wrongOptionsSameGroup, ...wrongOptionsOtherGroups];
 
-      // Ako nema dovoljno opcija, dodaj iz bilo koje grupe (5 ptica + "Ne znam" = 6 ukupno)
+      // Ako nema dovoljno opcija, dodaj iz bilo koje grupe
       while (options.length < 5) {
         const randomBird = shuffleArray(allBirds).find(b => 
           !options.some(o => o.id === b.id || o.naziv_srpskom === b.naziv_srpskom)
@@ -135,7 +155,6 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
         if (randomBird) {
           options.push(randomBird);
         } else {
-          // Ako nema više jedinstvenih opcija, prekini petlju
           break;
         }
       }
@@ -146,33 +165,60 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
       );
       
       const finalOptions = shuffleArray(uniqueOptions.slice(0, 5));
-      const { data } = supabase.storage.from('zvuk').getPublicUrl(`${correctBird.naziv_latinskom}.mp3`);
+      
+      // Izaberi sliku - za zvanični test koristi slike_test, inače slike_vezbanje
+      const availableImages = isOfficialTest ? correctBird.slike_test : correctBird.slike_vezbanje;
+      const selectedImage = availableImages.length > 0 
+        ? shuffleArray(availableImages)[0] 
+        : '';
+      
+      const imageUrl = selectedImage 
+        ? `https://lfacvlciikiyfuirhqmx.supabase.co/storage/v1/object/public/slike/${selectedImage}.jpg`
+        : '';
+
+      const authorName = selectedImage ? getAuthorName(selectedImage) : null;
 
       return {
         correctBird,
         options: finalOptions,
-        audioUrl: data.publicUrl,
+        imageUrl,
+        imageFileName: selectedImage,
+        authorName,
       };
     });
   }, []);
 
-
   useEffect(() => {
-    // Main data fetching and quiz generation
     const fetchBirdsAndGenerateQuiz = async () => {
       setLoading(true);
-      const { data: birds, error: dbError } = await supabase.from('ptice').select('*');
+      const isOfficialTest = localStorage.getItem('isOfficialTest') === 'true';
+      
+      const { data: birdsData, error: dbError } = await supabase
+        .from('ptice_slike')
+        .select('*');
+        
       if (dbError) {
         setError('Greška pri dohvatanju ptica iz baze.');
         setLoading(false);
         return;
       }
-      if (birds.length < 4) {
+      
+      if (!birdsData || birdsData.length < 4) {
         setError('Nema dovoljno ptica u bazi za generisanje kviza (potrebno je bar 4).');
         setLoading(false);
         return;
       }
-      const generatedQuestions = generateQuestions(birds, quizSize);
+      
+      const birds: BirdWithImages[] = birdsData.map(bird => ({
+        id: bird.id,
+        naziv_srpskom: bird.naziv_srpskom,
+        naziv_latinskom: bird.naziv_latinskom,
+        grupa: bird.grupa,
+        slike_vezbanje: bird.slike_vezbanje || [],
+        slike_test: bird.slike_test || [],
+      }));
+      
+      const generatedQuestions = generateQuestions(birds, quizSize, isOfficialTest);
       setQuestions(generatedQuestions);
       setLoading(false);
     };
@@ -180,7 +226,11 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
   }, [quizSize, generateQuestions]);
 
   useEffect(() => {
-    // Timer logic
+    // Reset image loaded state when question changes
+    setImageLoaded(false);
+  }, [currentQuestionIndex]);
+
+  useEffect(() => {
     if (!isAnswered) {
       timerRef.current = setInterval(() => setTimer(prev => prev - 1), 1000);
     } else {
@@ -193,9 +243,7 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
   }, [isAnswered]);
 
   useEffect(() => {
-    // Timeout handler
     if (timer === 0 && !isAnswered) {
-      // Finalize the current answer or default to "Ne znam"
       const finalAnswer = selectedAnswer || 'Ne znam';
       setIsAnswered(true);
       
@@ -213,31 +261,27 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
   }, [timer, isAnswered, selectedAnswer, questions, currentQuestionIndex]);
 
   useEffect(() => {
-    // Auto-advance to next question after a delay
     if (isAnswered) {
       nextQuestionTimeoutRef.current = setTimeout(() => {
         if (currentQuestionIndex < quizSize - 1) {
           handleNextQuestion();
         } else {
-          // This is the last question - finish the quiz after showing feedback
           hasFinishedRef.current = true;
           saveQuizResult(attempts);
           onFinish(attempts);
         }
-      }, 2500); // Increased delay to show feedback
+      }, 2500);
     }
   }, [isAnswered, currentQuestionIndex, quizSize, attempts, onFinish]);
 
-
   const handleAnswerSelect = (answer: string, isTimeout: boolean = false) => {
     if (isTimeout) {
-      // Time is up - lock the answer and proceed
       setIsAnswered(true);
       setSelectedAnswer(answer);
       
       const currentQuestion = questions[currentQuestionIndex];
       const isCorrect = answer === currentQuestion.correctBird.naziv_srpskom;
-      let points = 0; // No points for timeout
+      let points = 0;
 
       setAttempts(prev => [...prev, {
         question: currentQuestion,
@@ -246,13 +290,11 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
         points,
       }]);
     } else {
-      // User selected an answer - allow changing until timeout
       setSelectedAnswer(answer);
     }
   };
 
   const handleSkipQuestion = () => {
-    // Same logic as timeout - finalize current answer or default to "Ne znam"
     const finalAnswer = selectedAnswer || 'Ne znam';
     setIsAnswered(true);
     
@@ -266,9 +308,6 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
       isCorrect,
       points,
     }]);
-    
-    // If this is the last question, the timeout will handle finishing the quiz
-    // If not, the timeout will advance to the next question
   };
 
   const handleNextQuestion = () => {
@@ -277,6 +316,7 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
       setSelectedAnswer(null);
       setIsAnswered(false);
       setTimer(30);
+      setImageLoaded(false);
     }
   };
 
@@ -288,7 +328,6 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
     const baseClass = "mb-2 rounded-3 text-start";
     
     if (!isAnswered) {
-      // Add blue background and border for selected answer
       if (optionName === selectedAnswer) {
         return `${baseClass} bg-primary-subtle border-primary border-3`;
       }
@@ -328,7 +367,6 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
       );
     }
     
-    // Show checkmark for selected answer even before timeout
     if (isSelected && !isAnswered) {
       return (
         <div className="d-flex justify-content-between align-items-center w-100">
@@ -358,6 +396,7 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
+    <>
     <Card className="shadow-sm">
       <Card.Body className="text-center">
         <div className="d-flex justify-content-between align-items-center mb-4 px-2">
@@ -366,17 +405,44 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
           <span className="text-muted">Poeni: <span className="text-success fw-bold">{currentScore}</span></span>
         </div>
         
-        <div className="mb-4">
-          <audio 
-            key={currentQuestion.audioUrl} 
-            controls 
-            autoPlay 
-            src={currentQuestion.audioUrl}
-            controlsList="nodownload nofullscreen noremoteplayback"
-            style={{ width: '100%' }}
-          >
-            Vaš pretraživač ne podržava audio element.
-          </audio>
+        <div className="mb-4 position-relative" style={{ display: 'inline-block' }}>
+          {currentQuestion.imageUrl && (
+            <>
+              <img 
+                src={currentQuestion.imageUrl} 
+                alt="Ptica" 
+                className="img-fluid rounded"
+                style={{ maxHeight: '400px', objectFit: 'contain', cursor: 'pointer' }}
+                onClick={() => setShowImagePreview(true)}
+                onLoad={() => setImageLoaded(true)}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<div class="alert alert-warning">Slika nije dostupna</div>';
+                  }
+                }}
+              />
+              {imageLoaded && (currentQuestion as any).authorName && (
+                <div 
+                  className="position-absolute"
+                  style={{
+                    bottom: '8px',
+                    right: '8px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    color: 'white',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '0.75rem',
+                    pointerEvents: 'none'
+                  }}
+                >
+                  © {(currentQuestion as any).authorName}
+                </div>
+              )}
+            </>
+          )}
         </div>
 
         <ListGroup className="mb-3">
@@ -416,7 +482,59 @@ const QuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
         </div>
       </Card.Body>
     </Card>
+    {currentQuestion.imageUrl && (
+      <Modal 
+        show={showImagePreview} 
+        onHide={() => {
+          setShowImagePreview(false);
+          setImageLoaded(false);
+        }}
+        onEntered={() => setImageLoaded(false)}
+        centered
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Pregled slike</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center p-0 position-relative">
+          <img 
+            src={currentQuestion.imageUrl} 
+            alt="Ptica" 
+            className="img-fluid"
+            style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
+            onLoad={() => setImageLoaded(true)}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              const parent = target.parentElement;
+              if (parent) {
+                parent.innerHTML = '<div class="alert alert-warning m-3">Slika nije dostupna</div>';
+              }
+            }}
+          />
+          {imageLoaded && (currentQuestion as any).authorName && (
+            <div 
+              className="position-absolute"
+              style={{
+                bottom: '16px',
+                right: '16px',
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                color: 'white',
+                padding: '6px 12px',
+                borderRadius: '4px',
+                fontSize: '0.875rem',
+                pointerEvents: 'none'
+              }}
+            >
+              © {(currentQuestion as any).authorName}
+            </div>
+          )}
+        </Modal.Body>
+      </Modal>
+    )}
+    </>
   );
 };
 
-export default QuizScreen;
+export default ImageQuizScreen;
+

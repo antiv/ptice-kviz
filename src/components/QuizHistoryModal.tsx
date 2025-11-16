@@ -7,6 +7,7 @@ interface QuizResult {
   broj_pitanja: number;
   poeni: number;
   zvanican_test: boolean;
+  tip_testa?: string;
   created_at: string;
   rezultat: {
     attempts: Array<{
@@ -105,6 +106,7 @@ const QuizHistoryModal: React.FC<Props> = ({ show, onHide, userEmail }) => {
                   <th>Poeni</th>
                   <th>Uspešnost</th>
                   <th>Tip testa</th>
+                  <th>Vrsta</th>
                   <th>Akcije</th>
                 </tr>
               </thead>
@@ -119,6 +121,11 @@ const QuizHistoryModal: React.FC<Props> = ({ show, onHide, userEmail }) => {
                       </Badge>
                     </td>
                     <td>{calculateSuccessRate(result)}%</td>
+                    <td>
+                      <Badge bg={(result.tip_testa || 'oglasavanje') === 'slike' ? 'info' : 'success'}>
+                        {(result.tip_testa || 'oglasavanje') === 'slike' ? 'Izgled' : 'Oglašavanje'}
+                      </Badge>
+                    </td>
                     <td>
                       <Badge bg={result.zvanican_test ? 'primary' : 'secondary'}>
                         {result.zvanican_test ? 'Zvanični' : 'Obični'}
@@ -151,7 +158,8 @@ const QuizHistoryModal: React.FC<Props> = ({ show, onHide, userEmail }) => {
                 <strong>Ukupno pitanja:</strong> {selectedResult.broj_pitanja}<br/>
                 <strong>Ukupno poena:</strong> {selectedResult.poeni}<br/>
                 <strong>Uspešnost:</strong> {calculateSuccessRate(selectedResult)}%<br/>
-                <strong>Tip testa:</strong> {selectedResult.zvanican_test ? 'Zvanični test' : 'Obični kviz'}
+                <strong>Tip testa:</strong> {(selectedResult.tip_testa || 'oglasavanje') === 'slike' ? 'Izgled' : 'Oglašavanje'}<br/>
+                <strong>Vrsta:</strong> {selectedResult.zvanican_test ? 'Zvanični test' : 'Obični kviz'}
               </div>
               
               <div className="table-responsive">

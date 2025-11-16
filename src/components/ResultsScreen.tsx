@@ -10,6 +10,7 @@ interface Props {
 
 const ResultsScreen: React.FC<Props> = ({ attempts, onRestart }) => {
   const isOfficialTest = localStorage.getItem('isOfficialTest') === 'true';
+  const quizType = localStorage.getItem('quizType') || 'oglasavanje';
   
   const totalScore = attempts.reduce((acc, attempt) => acc + attempt.points, 0);
   const successRate = Math.max(0, Math.round((totalScore / attempts.length) * 100));
@@ -52,6 +53,16 @@ const ResultsScreen: React.FC<Props> = ({ attempts, onRestart }) => {
         </div>
 
         <h2 className="mb-4">Vaš rezultat: {totalScore} poena ({successRate}%)</h2>
+        <div className="mb-3">
+          <Badge bg={quizType === 'slike' ? 'info' : 'success'} className="me-2">
+            Tip testa: {quizType === 'slike' ? 'Izgled' : 'Oglašavanje'}
+          </Badge>
+          {isOfficialTest && (
+            <Badge bg="primary">
+              Zvanični test
+            </Badge>
+          )}
+        </div>
         {isOfficialTest && (
           <div className="alert alert-info mb-4">
             <strong>Zvanični test:</strong> Ovaj rezultat je sažet u zvaničnim rezultatima.
