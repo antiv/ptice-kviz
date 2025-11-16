@@ -129,7 +129,7 @@ const StartScreen: React.FC<Props> = ({ onStart, userEmail }) => {
                 onChange={() => setQuizType('slike')}
               />
               <label className="btn btn-outline-success" htmlFor="quizTypeSlike">
-                Slike
+                Izgled
               </label>
             </div>
           </div>

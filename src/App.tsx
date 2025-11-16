@@ -50,7 +50,7 @@ const AppContent: React.FC = () => {
 
   const getTitle = (): string => {
     const quizType = getQuizType();
-    return quizType === 'slike' ? 'Ptice Srbije - Slike' : 'Ptice Srbije - Oglašavanje';
+    return quizType === 'slike' ? 'Ptice Srbije - Izgled' : 'Ptice Srbije - Oglašavanje';
   };
 
   const getPageTitle = (): string => {

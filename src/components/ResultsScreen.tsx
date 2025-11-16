@@ -55,7 +55,7 @@ const ResultsScreen: React.FC<Props> = ({ attempts, onRestart }) => {
         <h2 className="mb-4">Vaš rezultat: {totalScore} poena ({successRate}%)</h2>
         <div className="mb-3">
           <Badge bg={quizType === 'slike' ? 'info' : 'success'} className="me-2">
-            Tip testa: {quizType === 'slike' ? 'Slike' : 'Oglašavanje'}
+            Tip testa: {quizType === 'slike' ? 'Izgled' : 'Oglašavanje'}
           </Badge>
           {isOfficialTest && (
             <Badge bg="primary">

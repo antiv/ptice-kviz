@@ -123,7 +123,7 @@ const QuizHistoryModal: React.FC<Props> = ({ show, onHide, userEmail }) => {
                     <td>{calculateSuccessRate(result)}%</td>
                     <td>
                       <Badge bg={(result.tip_testa || 'oglasavanje') === 'slike' ? 'info' : 'success'}>
-                        {(result.tip_testa || 'oglasavanje') === 'slike' ? 'Slike' : 'Oglašavanje'}
+                        {(result.tip_testa || 'oglasavanje') === 'slike' ? 'Izgled' : 'Oglašavanje'}
                       </Badge>
                     </td>
                     <td>
@@ -158,7 +158,7 @@ const QuizHistoryModal: React.FC<Props> = ({ show, onHide, userEmail }) => {
                 <strong>Ukupno pitanja:</strong> {selectedResult.broj_pitanja}<br/>
                 <strong>Ukupno poena:</strong> {selectedResult.poeni}<br/>
                 <strong>Uspešnost:</strong> {calculateSuccessRate(selectedResult)}%<br/>
-                <strong>Tip testa:</strong> {(selectedResult.tip_testa || 'oglasavanje') === 'slike' ? 'Slike' : 'Oglašavanje'}<br/>
+                <strong>Tip testa:</strong> {(selectedResult.tip_testa || 'oglasavanje') === 'slike' ? 'Izgled' : 'Oglašavanje'}<br/>
                 <strong>Vrsta:</strong> {selectedResult.zvanican_test ? 'Zvanični test' : 'Obični kviz'}
               </div>
               
