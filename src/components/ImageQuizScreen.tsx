@@ -405,14 +405,36 @@ const ImageQuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
           <span className="text-muted">Poeni: <span className="text-success fw-bold">{currentScore}</span></span>
         </div>
         
-        <div className="mb-4 position-relative" style={{ display: 'inline-block' }}>
+        <div 
+          className="mb-4 position-relative" 
+          style={{ 
+            display: 'inline-block',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            MozUserSelect: 'none',
+            msUserSelect: 'none'
+          }}
+          onContextMenu={(e) => e.preventDefault()}
+          onDragStart={(e) => e.preventDefault()}
+        >
           {currentQuestion.imageUrl && (
             <>
               <img 
                 src={currentQuestion.imageUrl} 
                 alt="Ptica" 
                 className="img-fluid rounded"
-                style={{ maxHeight: '400px', objectFit: 'contain', cursor: 'pointer' }}
+                style={{ 
+                  maxHeight: '400px', 
+                  objectFit: 'contain', 
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  MozUserSelect: 'none',
+                  msUserSelect: 'none'
+                }}
+                draggable="false"
+                onContextMenu={(e) => e.preventDefault()}
+                onDragStart={(e) => e.preventDefault()}
                 onClick={() => setShowImagePreview(true)}
                 onLoad={() => setImageLoaded(true)}
                 onError={(e) => {
@@ -494,14 +516,34 @@ const ImageQuizScreen: React.FC<Props> = ({ quizSize, onFinish }) => {
         size="lg"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Pregled slike</Modal.Title>
         </Modal.Header>
-        <Modal.Body className="text-center p-0 position-relative">
+        <Modal.Body 
+          className="text-center p-0 position-relative"
+          style={{
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            MozUserSelect: 'none',
+            msUserSelect: 'none'
+          }}
+          onContextMenu={(e) => e.preventDefault()}
+          onDragStart={(e) => e.preventDefault()}
+        >
           <img 
             src={currentQuestion.imageUrl} 
             alt="Ptica" 
             className="img-fluid"
-            style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
+            style={{ 
+              maxHeight: '80vh', 
+              width: '100%', 
+              objectFit: 'contain',
+              userSelect: 'none',
+              WebkitUserSelect: 'none',
+              MozUserSelect: 'none',
+              msUserSelect: 'none'
+            }}
+            draggable="false"
+            onContextMenu={(e) => e.preventDefault()}
+            onDragStart={(e) => e.preventDefault()}
             onLoad={() => setImageLoaded(true)}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
