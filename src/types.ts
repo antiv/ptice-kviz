@@ -5,10 +5,16 @@ export interface Bird {
   grupa: number;
 }
 
+export interface BirdWithImages extends Bird {
+  slike_vezbanje: string[];
+  slike_test: string[];
+}
+
 export interface Question {
   correctBird: Bird;
   options: Bird[]; // Array of Bird objects for options
-  audioUrl: string;
+  audioUrl?: string;
+  imageUrl?: string;
 }
 
 export interface QuizAttempt {
@@ -17,3 +23,5 @@ export interface QuizAttempt {
   isCorrect: boolean;
   points: number;
 }
+
+export type QuizType = 'oglasavanje' | 'slike';

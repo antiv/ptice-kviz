@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import StartScreen from './components/StartScreen';
 import QuizScreen from './components/QuizScreen';
+import ImageQuizScreen from './components/ImageQuizScreen';
 import ResultsScreen from './components/ResultsScreen';
 import LoginScreen from './components/LoginScreen';
 import QuizHistoryModal from './components/QuizHistoryModal';
 import AdminPanel from './components/AdminPanel';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { QuizAttempt } from './types';
+import { QuizAttempt, QuizType } from './types';
 import { Dropdown, Button, Alert } from 'react-bootstrap';
 
 type GameState = 'start' | 'quiz' | 'results' | 'admin';
@@ -40,9 +41,37 @@ const AppContent: React.FC = () => {
     setQuizSize(0);
     setLastQuizAttempts([]);
     localStorage.removeItem('isOfficialTest');
+    localStorage.removeItem('quizType');
+  };
+
+  const getQuizType = (): QuizType => {
+    return (localStorage.getItem('quizType') as QuizType) || 'oglasavanje';
+  };
+
+  const getTitle = (): string => {
+    const quizType = getQuizType();
+    return quizType === 'slike' ? 'Ptice Srbije - Slike' : 'Ptice Srbije - Oglašavanje';
+  };
+
+  const getPageTitle = (): string => {
+    // Na login strani i strani sa izborom testa uvek prikaži "Ptice Srbije - Testiranje"
+    if (!user || gameState === 'start') {
+      return 'Ptice Srbije - Testiranje';
+    }
+    // Na ostalim stranama koristi dinamički naslov
+    return getTitle();
   };
 
   const isAdmin = user?.email === 'admin@example.com';
+
+  // Postavi naslov stranice
+  useEffect(() => {
+    if (!user || gameState === 'start') {
+      document.title = 'Ptice Srbije - Testiranje';
+    } else {
+      document.title = getTitle();
+    }
+  }, [user, gameState]);
 
   if (loading) {
     return (
@@ -66,7 +95,7 @@ const AppContent: React.FC = () => {
             style={{ width: '40px', height: '40px' }}
             className="rounded-circle"
           />
-          <h2 className="mb-0 text-success text-break">Ptice Srbije - Oglašavanje</h2>
+          <h2 className="mb-0 text-success text-break">Ptice Srbije - Testiranje</h2>
         </div>
         {unauthorizedMessage && (
           <div className="alert alert-warning" role="alert">
@@ -88,7 +117,7 @@ const AppContent: React.FC = () => {
             style={{ width: '40px', height: '40px' }}
             className="rounded-circle"
           />
-          <h2 className="mb-0 text-success text-break">Ptice Srbije - Oglašavanje</h2>
+          <h2 className="mb-0 text-success text-break">Ptice Srbije - Testiranje</h2>
         </div>
         <Alert variant="danger">
           {unauthorizedMessage || 'Nemate pristup ovoj aplikaciji.'}
@@ -112,7 +141,7 @@ const AppContent: React.FC = () => {
             style={{ width: '40px', height: '40px' }}
             className="rounded-circle"
           />
-          <h2 className="mb-0 text-success text-break">Ptice Srbije - Oglašavanje</h2>
+          <h2 className="mb-0 text-success text-break">{gameState === 'start' ? 'Ptice Srbije - Testiranje' : getTitle()}</h2>
         </div>
         <div className="d-flex align-items-center gap-3">
           <Dropdown>
@@ -171,7 +200,11 @@ const AppContent: React.FC = () => {
         </div>
       </div>
       {gameState === 'start' && <StartScreen onStart={startQuiz} userEmail={user.email || ''} />}
-      {gameState === 'quiz' && <QuizScreen quizSize={quizSize} onFinish={showResults} />}
+      {gameState === 'quiz' && (
+        getQuizType() === 'slike' 
+          ? <ImageQuizScreen quizSize={quizSize} onFinish={showResults} />
+          : <QuizScreen quizSize={quizSize} onFinish={showResults} />
+      )}
       {gameState === 'results' && <ResultsScreen attempts={lastQuizAttempts} onRestart={restartQuiz} />}
       {gameState === 'admin' && (
         <div className="row justify-content-center">
