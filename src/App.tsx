@@ -7,14 +7,15 @@ import ResultsScreen from './components/ResultsScreen';
 import LoginScreen from './components/LoginScreen';
 import QuizHistoryModal from './components/QuizHistoryModal';
 import AdminPanel from './components/AdminPanel';
+import PreviewScreen from './components/PreviewScreen';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { QuizAttempt, QuizType } from './types';
 import { Dropdown, Button, Alert } from 'react-bootstrap';
 
-type GameState = 'start' | 'quiz' | 'results' | 'admin';
+type GameState = 'start' | 'quiz' | 'results' | 'admin' | 'preview';
 
 const AppContent: React.FC = () => {
-  const { user, loading, signOut, isAuthorized, unauthorizedMessage } = useAuth();
+  const { user, loading, signOut, isAuthorized, unauthorizedMessage, isAdmin } = useAuth();
   const [gameState, setGameState] = useState<GameState>('start');
   const [quizSize, setQuizSize] = useState<number>(0);
   const [lastQuizAttempts, setLastQuizAttempts] = useState<QuizAttempt[]>([]);
@@ -49,6 +50,9 @@ const AppContent: React.FC = () => {
   };
 
   const getTitle = (): string => {
+    if (gameState === 'admin' || gameState === 'preview') {
+      return 'Ptice Srbije - Admin';
+    }
     const quizType = getQuizType();
     return quizType === 'slike' ? 'Ptice Srbije - Izgled' : 'Ptice Srbije - Oglašavanje';
   };
@@ -62,7 +66,6 @@ const AppContent: React.FC = () => {
     return getTitle();
   };
 
-  const isAdmin = user?.email === 'admin@example.com';
 
   // Postavi naslov stranice
   useEffect(() => {
@@ -132,7 +135,7 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <div className="App container py-4">
+    <div className={`App ${gameState === 'admin' || gameState === 'preview' ? 'container-fluid admin-view px-4' : 'container'} py-4`}>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div className="d-flex align-items-center gap-3">
           <img 
@@ -187,7 +190,7 @@ const AppContent: React.FC = () => {
                 <>
                   <Dropdown.Divider />
                   <Dropdown.Item onClick={() => setGameState('admin')}>
-                    Admin Panel
+                    Dashboard
                   </Dropdown.Item>
                 </>
               )}
@@ -199,22 +202,26 @@ const AppContent: React.FC = () => {
           </Dropdown>
         </div>
       </div>
-      {gameState === 'start' && <StartScreen onStart={startQuiz} userEmail={user.email || ''} />}
+      {gameState === 'start' && <StartScreen onStart={startQuiz} userEmail={user.email || ''} isAdmin={isAdmin} />}
       {gameState === 'quiz' && (
         getQuizType() === 'slike' 
           ? <ImageQuizScreen quizSize={quizSize} onFinish={showResults} />
           : <QuizScreen quizSize={quizSize} onFinish={showResults} />
       )}
       {gameState === 'results' && <ResultsScreen attempts={lastQuizAttempts} onRestart={restartQuiz} />}
+      {gameState === 'preview' && <PreviewScreen onBack={() => setGameState('admin')} />}
       {gameState === 'admin' && (
         <div className="row justify-content-center">
-          <div className="col-md-8">
-            <AdminPanel />
-            <div className="text-center mt-3">
+          <div className="col-12">
+            <div className="mb-3 d-flex justify-content-between">
               <Button variant="outline-secondary" onClick={() => setGameState('start')}>
-                Nazad na početnu
+                ← Nazad na početnu
+              </Button>
+              <Button variant="outline-primary" onClick={() => setGameState('preview')}>
+                Pregled Vrsta
               </Button>
             </div>
+            <AdminPanel onNavigate={(page) => setGameState(page)} />
           </div>
         </div>
       )}

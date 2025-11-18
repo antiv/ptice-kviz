@@ -6,9 +6,10 @@ import './QuizScreen.css';
 interface Props {
   onStart: (size: number, isOfficialTest?: boolean) => void;
   userEmail: string;
+  isAdmin?: boolean;
 }
 
-const StartScreen: React.FC<Props> = ({ onStart, userEmail }) => {
+const StartScreen: React.FC<Props> = ({ onStart, userEmail, isAdmin = false }) => {
   const [officialTestAttempted, setOfficialTestAttempted] = useState(false);
   const [officialTestActive, setOfficialTestActive] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -17,21 +18,26 @@ const StartScreen: React.FC<Props> = ({ onStart, userEmail }) => {
   useEffect(() => {
     const checkOfficialTestStatus = async () => {
       try {
-        // Proverava da li je korisnik već radio zvanični test za trenutni tip testa
-        const { data: userData, error: userError } = await supabase
-          .from('rezultati_kviza')
-          .select('zvanican_test, tip_testa')
-          .eq('user_email', userEmail)
-          .eq('zvanican_test', true)
-          .eq('tip_testa', quizType)
-          .limit(1);
-
-        if (userError) {
-          console.error('Error checking official test status:', userError);
-        } else if (userData && userData.length > 0) {
-          setOfficialTestAttempted(true);
-        } else {
+        // Admini uvek mogu pokrenuti zvanični test
+        if (isAdmin) {
           setOfficialTestAttempted(false);
+        } else {
+          // Proverava da li je korisnik već radio zvanični test za trenutni tip testa
+          const { data: userData, error: userError } = await supabase
+            .from('rezultati_kviza')
+            .select('zvanican_test, tip_testa')
+            .eq('user_email', userEmail)
+            .eq('zvanican_test', true)
+            .eq('tip_testa', quizType)
+            .limit(1);
+
+          if (userError) {
+            console.error('Error checking official test status:', userError);
+          } else if (userData && userData.length > 0) {
+            setOfficialTestAttempted(true);
+          } else {
+            setOfficialTestAttempted(false);
+          }
         }
 
         // Proverava da li je zvanični test aktivan
@@ -65,7 +71,7 @@ const StartScreen: React.FC<Props> = ({ onStart, userEmail }) => {
     };
 
     checkOfficialTestStatus();
-  }, [userEmail, quizType]);
+  }, [userEmail, quizType, isAdmin]);
 
   const handleOfficialTest = async () => {
     setOfficialTestAttempted(true);
@@ -167,13 +173,13 @@ const StartScreen: React.FC<Props> = ({ onStart, userEmail }) => {
             </div>
             <div className="col-6 col-lg-3">
               <Button 
-                variant={!officialTestActive ? "secondary" : officialTestAttempted ? "secondary" : "danger"}
+                variant={!officialTestActive && !isAdmin ? "secondary" : officialTestAttempted && !isAdmin ? "secondary" : "danger"}
                 size="lg" 
                 onClick={handleOfficialTest}
-                disabled={!officialTestActive || officialTestAttempted}
+                disabled={!officialTestActive && !isAdmin || (officialTestAttempted && !isAdmin)}
                 className="rounded-3 w-100 py-2"
               >
-                {officialTestAttempted ? "Zvanični test završen" : "Zvanični test"}
+                {officialTestAttempted && !isAdmin ? "Zvanični test završen" : "Zvanični test"}
               </Button>
             </div>
           </div>
