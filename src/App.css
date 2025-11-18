@@ -51,6 +51,10 @@ body {
   margin: auto;
 }
 
+.App.admin-view {
+  max-width: 100%;
+}
+
 .card {
   border-radius: 15px;
 }

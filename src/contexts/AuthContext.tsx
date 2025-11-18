@@ -10,6 +10,8 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   isAuthorized: boolean;
   unauthorizedMessage: string | null;
+  userRole: string | null;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,41 +34,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [unauthorizedMessage, setUnauthorizedMessage] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   const checkAuthorization = async (user: User | null) => {
     if (!user?.email) {
       setIsAuthorized(false);
       setUnauthorizedMessage(null);
+      setUserRole(null);
       return;
     }
 
     try {
-      // Dohvati listu dozvoljenih email adresa iz baze
-      const { data: allowedUsers, error } = await supabase
+      // Dohvati korisnika sa ulogom iz baze
+      const { data: allowedUser, error } = await supabase
         .from('allowed_users')
-        .select('email');
+        .select('email, roles')
+        .eq('email', user.email)
+        .single();
 
       if (error) {
-        console.error('Error fetching allowed users:', error);
+        console.error('Error fetching allowed user:', error);
         setIsAuthorized(false);
         setUnauthorizedMessage('Greška pri proveri autorizacije.');
+        setUserRole(null);
         return;
       }
 
-      const allowedEmails = allowedUsers?.map(u => u.email) || [];
-      const isAllowed = allowedEmails.includes(user.email);
-      setIsAuthorized(isAllowed);
-      
-      if (!isAllowed) {
-        setUnauthorizedMessage(`Vaša email adresa (${user.email}) nije na listi dozvoljenih korisnika. Kontaktirajte administratora za pristup.`);
-        // Ne logoutuj korisnika odmah - ostavi poruku da vidi šta se desilo
-      } else {
+      if (allowedUser) {
+        setIsAuthorized(true);
         setUnauthorizedMessage(null);
+        setUserRole(allowedUser.roles || 'user');
+      } else {
+        setIsAuthorized(false);
+        setUnauthorizedMessage(`Vaša email adresa (${user.email}) nije na listi dozvoljenih korisnika. Kontaktirajte administratora za pristup.`);
+        setUserRole(null);
       }
     } catch (error) {
       console.error('Error checking authorization:', error);
       setIsAuthorized(false);
       setUnauthorizedMessage('Greška pri proveri autorizacije.');
+      setUserRole(null);
     }
   };
 
@@ -137,6 +144,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signOut,
     isAuthorized,
     unauthorizedMessage,
+    userRole,
+    isAdmin: userRole === 'admin',
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
