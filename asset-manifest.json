@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/ptice-kviz/static/css/main.435a1de7.css",
-    "main.js": "/ptice-kviz/static/js/main.83adb21a.js",
-    "static/js/453.ae8c77e4.chunk.js": "/ptice-kviz/static/js/453.ae8c77e4.chunk.js",
+    "main.css": "/ptice-kviz/static/css/main.58813bd7.css",
+    "main.js": "/ptice-kviz/static/js/main.83bb9da1.js",
+    "static/js/453.70df543e.chunk.js": "/ptice-kviz/static/js/453.70df543e.chunk.js",
     "index.html": "/ptice-kviz/index.html",
-    "main.435a1de7.css.map": "/ptice-kviz/static/css/main.435a1de7.css.map",
-    "main.83adb21a.js.map": "/ptice-kviz/static/js/main.83adb21a.js.map",
-    "453.ae8c77e4.chunk.js.map": "/ptice-kviz/static/js/453.ae8c77e4.chunk.js.map"
+    "main.58813bd7.css.map": "/ptice-kviz/static/css/main.58813bd7.css.map",
+    "main.83bb9da1.js.map": "/ptice-kviz/static/js/main.83bb9da1.js.map",
+    "453.70df543e.chunk.js.map": "/ptice-kviz/static/js/453.70df543e.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.435a1de7.css",
-    "static/js/main.83adb21a.js"
+    "static/css/main.58813bd7.css",
+    "static/js/main.83bb9da1.js"
   ]
 }
