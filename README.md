@@ -1,6 +1,19 @@
-# Kviz o Pticama - Aplikacija za Prepoznavanje Ptica po Zvuku
+# Kviz o Pticama - Aplikacija za Prepoznavanje Ptica
 
-Ovo je veb aplikacija napravljena u React-u koja omogućava korisnicima da testiraju svoje znanje u prepoznavanju ptica na osnovu njihovih zvukova.
+Ovo je veb aplikacija napravljena u React-u koja omogućava korisnicima da testiraju svoje znanje u prepoznavanju ptica na osnovu njihovih zvukova i izgleda.
+
+## Funkcionalnosti
+
+### 1. Prepoznavanje po Zvuku
+Testirajte svoje uši! Slušajte snimke ptica i pogodite o kojoj vrsti je reč.
+
+### 2. Prepoznavanje po Izgledu
+Testirajte svoje oči! Pogledajte fotografije ptica i identifikujte vrstu.
+
+### 3. Admin Dashboard
+Za administratore aplikacije, dostupan je poseban panel za upravljanje sadržajem.
+*   **Pregled vrsta:** Lista svih ptica u bazi.
+*   **Statistika:** (Opciono, ako postoji) Pregled korišćenja kviza.
 
 ## Tehnologije
 
@@ -40,6 +53,7 @@ Potrebno je da imate Supabase nalog i kreiran projekat.
 *   Idite na **Storage** u vašem Supabase projektu.
 *   Kreirajte novi "bucket". Preporučujemo da ga nazovete `zvuk`.
 *   U ovaj bucket, postavite vaše audio fajlove (`.mp3`). **Naziv svakog fajla mora tačno odgovarati unosu u koloni `naziv_latinskom`** u vašoj `ptice` tabeli (npr. `Parus major.mp3`).
+*   Za slike, kreirajte bucket `slike` (ili koristite postojeći ako je tako konfigurisan) i postavite slike ptica.
 
 **c. Popunjavanje podataka o pticama:**
 
