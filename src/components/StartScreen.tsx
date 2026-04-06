@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Card } from 'react-bootstrap';
+import { Button, Card, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { supabase } from '../supabaseClient';
 import './QuizScreen.css';
 
@@ -14,6 +14,7 @@ const StartScreen: React.FC<Props> = ({ onStart, userEmail, isAdmin = false }) =
   const [officialTestActive, setOfficialTestActive] = useState(false);
   const [loading, setLoading] = useState(true);
   const [quizType, setQuizType] = useState<'oglasavanje' | 'slike'>('oglasavanje');
+  const [isFirstTest, setIsFirstTest] = useState(true);
 
   useEffect(() => {
     const checkOfficialTestStatus = async () => {
@@ -21,6 +22,7 @@ const StartScreen: React.FC<Props> = ({ onStart, userEmail, isAdmin = false }) =
         // Admini uvek mogu pokrenuti zvanični test
         if (isAdmin) {
           setOfficialTestAttempted(false);
+          setIsFirstTest(false);
         } else {
           // Proverava da li je korisnik već radio zvanični test za trenutni tip testa
           const { data: userData, error: userError } = await supabase
@@ -37,6 +39,22 @@ const StartScreen: React.FC<Props> = ({ onStart, userEmail, isAdmin = false }) =
             setOfficialTestAttempted(true);
           } else {
             setOfficialTestAttempted(false);
+          }
+
+          // Proverava da li je korisnik već radio bilo koji test (da li je prvi) za ovaj tip
+          const { data: anyTestData, error: anyTestError } = await supabase
+            .from('rezultati_kviza')
+            .select('id')
+            .eq('user_email', userEmail)
+            .eq('tip_testa', quizType)
+            .limit(1);
+
+          if (anyTestError) {
+            console.error('Error checking first test status:', anyTestError);
+          } else if (anyTestData && anyTestData.length > 0) {
+            setIsFirstTest(false);
+          } else {
+            setIsFirstTest(true);
           }
         }
 
@@ -142,24 +160,56 @@ const StartScreen: React.FC<Props> = ({ onStart, userEmail, isAdmin = false }) =
           
           <div className="row g-3">
             <div className="col-6 col-lg-3">
-              <Button 
-                variant="success" 
-                size="lg" 
-                onClick={() => handleStartQuiz(10)}
-                className="rounded-3 w-100 py-2"
-              >
-                10 Pitanja
-              </Button>
+              {isFirstTest ? (
+                <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip-10">Za ulazni test morate odabrati test od 60 pitanja.</Tooltip>}>
+                  <span className="d-block w-100">
+                    <Button 
+                      variant="success" 
+                      size="lg" 
+                      disabled
+                      className="rounded-3 w-100 py-2"
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      10 Pitanja
+                    </Button>
+                  </span>
+                </OverlayTrigger>
+              ) : (
+                <Button 
+                  variant="success" 
+                  size="lg" 
+                  onClick={() => handleStartQuiz(10)}
+                  className="rounded-3 w-100 py-2"
+                >
+                  10 Pitanja
+                </Button>
+              )}
             </div>
             <div className="col-6 col-lg-3">
-              <Button 
-                variant="success" 
-                size="lg" 
-                onClick={() => handleStartQuiz(30)}
-                className="rounded-3 w-100 py-2"
-              >
-                30 Pitanja
-              </Button>
+              {isFirstTest ? (
+                <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip-30">Za ulazni test morate odabrati test od 60 pitanja.</Tooltip>}>
+                  <span className="d-block w-100">
+                    <Button 
+                      variant="success" 
+                      size="lg" 
+                      disabled
+                      className="rounded-3 w-100 py-2"
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      30 Pitanja
+                    </Button>
+                  </span>
+                </OverlayTrigger>
+              ) : (
+                <Button 
+                  variant="success" 
+                  size="lg" 
+                  onClick={() => handleStartQuiz(30)}
+                  className="rounded-3 w-100 py-2"
+                >
+                  30 Pitanja
+                </Button>
+              )}
             </div>
             <div className="col-6 col-lg-3">
               <Button 
