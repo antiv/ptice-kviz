@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/ptice-kviz/static/css/main.58813bd7.css",
-    "main.js": "/ptice-kviz/static/js/main.6e09b3b6.js",
+    "main.js": "/ptice-kviz/static/js/main.bcf884ee.js",
     "static/js/453.70df543e.chunk.js": "/ptice-kviz/static/js/453.70df543e.chunk.js",
     "index.html": "/ptice-kviz/index.html",
     "main.58813bd7.css.map": "/ptice-kviz/static/css/main.58813bd7.css.map",
-    "main.6e09b3b6.js.map": "/ptice-kviz/static/js/main.6e09b3b6.js.map",
+    "main.bcf884ee.js.map": "/ptice-kviz/static/js/main.bcf884ee.js.map",
     "453.70df543e.chunk.js.map": "/ptice-kviz/static/js/453.70df543e.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.58813bd7.css",
-    "static/js/main.6e09b3b6.js"
+    "static/js/main.bcf884ee.js"
   ]
 }
