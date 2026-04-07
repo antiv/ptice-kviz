@@ -58,9 +58,9 @@ const AppContent: React.FC = () => {
   };
 
   const getPageTitle = (): string => {
-    // Na login strani i strani sa izborom testa uvek prikaži "Ptice Srbije - Testiranje"
+    // Na login strani i strani sa izborom testa uvek prikaži "Ptice Srbije - BirdQ"
     if (!user || gameState === 'start') {
-      return 'Ptice Srbije - Testiranje';
+      return 'Ptice Srbije - BirdQ';
     }
     // Na ostalim stranama koristi dinamički naslov
     return getTitle();
@@ -70,7 +70,7 @@ const AppContent: React.FC = () => {
   // Postavi naslov stranice
   useEffect(() => {
     if (!user || gameState === 'start') {
-      document.title = 'Ptice Srbije - Testiranje';
+      document.title = 'Ptice Srbije - BirdQ';
     } else {
       document.title = getTitle();
     }
@@ -92,13 +92,13 @@ const AppContent: React.FC = () => {
     return (
       <div className="App container py-4">
         <div className="d-flex align-items-center gap-3 mb-4">
-          <img 
-            src={`${process.env.PUBLIC_URL}/icon.png`} 
-            alt="Ptice Srbije" 
+          <img
+            src={`${process.env.PUBLIC_URL}/icon.png`}
+            alt="Ptice Srbije"
             style={{ width: '40px', height: '40px' }}
             className="rounded-circle"
           />
-          <h2 className="mb-0 text-success text-break">Ptice Srbije - Testiranje</h2>
+          <h2 className="mb-0 text-success text-break">Ptice Srbije - BirdQ</h2>
         </div>
         {unauthorizedMessage && (
           <div className="alert alert-warning" role="alert">
@@ -114,13 +114,13 @@ const AppContent: React.FC = () => {
     return (
       <div className="App container py-4">
         <div className="d-flex align-items-center gap-3 mb-4">
-          <img 
-            src={`${process.env.PUBLIC_URL}/icon.png`} 
-            alt="Ptice Srbije" 
+          <img
+            src={`${process.env.PUBLIC_URL}/icon.png`}
+            alt="Ptice Srbije"
             style={{ width: '40px', height: '40px' }}
             className="rounded-circle"
           />
-          <h2 className="mb-0 text-success text-break">Ptice Srbije - Testiranje</h2>
+          <h2 className="mb-0 text-success text-break">Ptice Srbije - BirdQ</h2>
         </div>
         <Alert variant="danger">
           {unauthorizedMessage || 'Nemate pristup ovoj aplikaciji.'}
@@ -138,26 +138,26 @@ const AppContent: React.FC = () => {
     <div className={`App ${gameState === 'admin' || gameState === 'preview' ? 'container-fluid admin-view px-4' : 'container'} py-4`}>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div className="d-flex align-items-center gap-3">
-          <img 
-            src={`${process.env.PUBLIC_URL}/icon.png`} 
-            alt="Ptice Srbije" 
+          <img
+            src={`${process.env.PUBLIC_URL}/icon.png`}
+            alt="Ptice Srbije"
             style={{ width: '40px', height: '40px' }}
             className="rounded-circle"
           />
-          <h2 className="mb-0 text-success text-break">{gameState === 'start' ? 'Ptice Srbije - Testiranje' : getTitle()}</h2>
+          <h2 className="mb-0 text-success text-break">{gameState === 'start' ? 'Ptice Srbije - BirdQ' : getTitle()}</h2>
         </div>
         <div className="d-flex align-items-center gap-3">
           <Dropdown>
-            <Dropdown.Toggle 
-              variant="outline-secondary" 
+            <Dropdown.Toggle
+              variant="outline-secondary"
               className="d-flex align-items-center justify-content-center bg-white border-0 p-0 rounded-circle overflow-hidden"
               style={{ width: '40px', height: '40px' }}
               bsPrefix="btn"
             >
               {user.user_metadata?.avatar_url ? (
-                <img 
-                  src={user.user_metadata.avatar_url} 
-                  alt="User avatar" 
+                <img
+                  src={user.user_metadata.avatar_url}
+                  alt="User avatar"
                   className="w-100 h-100 object-fit-cover"
                   onError={(e) => {
                     // Fallback to initial if image fails to load
@@ -204,7 +204,7 @@ const AppContent: React.FC = () => {
       </div>
       {gameState === 'start' && <StartScreen onStart={startQuiz} userEmail={user.email || ''} isAdmin={isAdmin} />}
       {gameState === 'quiz' && (
-        getQuizType() === 'slike' 
+        getQuizType() === 'slike'
           ? <ImageQuizScreen quizSize={quizSize} onFinish={showResults} />
           : <QuizScreen quizSize={quizSize} onFinish={showResults} />
       )}
@@ -225,13 +225,13 @@ const AppContent: React.FC = () => {
           </div>
         </div>
       )}
-      
-      <QuizHistoryModal 
-        show={showHistoryModal} 
-        onHide={() => setShowHistoryModal(false)} 
-        userEmail={user.email || ''} 
+
+      <QuizHistoryModal
+        show={showHistoryModal}
+        onHide={() => setShowHistoryModal(false)}
+        userEmail={user.email || ''}
       />
-      
+
       <div className="text-center mt-4 mb-2">
         <small className="text-muted">
           Oglašavanja preuzeta sa <a href="https://xeno-canto.org/" target="_blank" rel="noopener noreferrer" className="text-decoration-none">xeno-canto.org</a>
