@@ -61,6 +61,27 @@ const QuizHistoryModal: React.FC<Props> = ({ show, onHide, userEmail }) => {
     }
   };
 
+  let oldestImageTestId: number | null = null;
+  let oldestSoundTestId: number | null = null;
+  
+  if (results.length > 0) {
+    for (let i = results.length - 1; i >= 0; i--) {
+      const type = results[i].tip_testa || 'oglasavanje';
+      if (type === 'slike' && !oldestImageTestId) oldestImageTestId = results[i].id;
+      if (type === 'oglasavanje' && !oldestSoundTestId) oldestSoundTestId = results[i].id;
+    }
+  }
+
+  const getVrstaLabel = (result: QuizResult) => {
+    if (result.id === oldestImageTestId || result.id === oldestSoundTestId) return 'Ulazni';
+    return result.zvanican_test ? 'Zvanični' : 'Obični';
+  };
+
+  const getVrstaBadgeBg = (result: QuizResult) => {
+    if (result.id === oldestImageTestId || result.id === oldestSoundTestId) return 'warning';
+    return result.zvanican_test ? 'primary' : 'secondary';
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('sr-RS', {
       year: 'numeric',
@@ -127,8 +148,8 @@ const QuizHistoryModal: React.FC<Props> = ({ show, onHide, userEmail }) => {
                       </Badge>
                     </td>
                     <td>
-                      <Badge bg={result.zvanican_test ? 'primary' : 'secondary'}>
-                        {result.zvanican_test ? 'Zvanični' : 'Obični'}
+                      <Badge bg={getVrstaBadgeBg(result)}>
+                        {getVrstaLabel(result)}
                       </Badge>
                     </td>
                     <td>
@@ -159,7 +180,7 @@ const QuizHistoryModal: React.FC<Props> = ({ show, onHide, userEmail }) => {
                 <strong>Ukupno poena:</strong> {selectedResult.poeni}<br/>
                 <strong>Uspešnost:</strong> {calculateSuccessRate(selectedResult)}%<br/>
                 <strong>Tip testa:</strong> {(selectedResult.tip_testa || 'oglasavanje') === 'slike' ? 'Izgled' : 'Oglašavanje'}<br/>
-                <strong>Vrsta:</strong> {selectedResult.zvanican_test ? 'Zvanični test' : 'Obični kviz'}
+                <strong>Vrsta:</strong> {getVrstaLabel(selectedResult)}
               </div>
               
               <div className="table-responsive">

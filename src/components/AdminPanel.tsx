@@ -5,6 +5,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   AreaChart, Area
 } from 'recharts';
+import QuizHistoryModal from './QuizHistoryModal';
 
 interface OfficialTestSettings {
   active: boolean;
@@ -29,6 +30,7 @@ interface StatsData {
 }
 
 type TimeRange = 'today' | '3days' | '7days' | 'month';
+type TestFilterType = 'all' | 'with_tests' | 'no_tests';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -51,20 +53,45 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [testFilter, setTestFilter] = useState<TestFilterType>('all');
+  const [historyModalShow, setHistoryModalShow] = useState(false);
+  const [historyUserEmail, setHistoryUserEmail] = useState('');
+  const [userTestCounts, setUserTestCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     loadSettings();
     loadAllowedUsers();
+    loadUserTestCounts();
   }, []);
 
   useEffect(() => {
     loadStats(timeRange);
   }, [timeRange]);
 
-  // Reset to first page when search changes
+  // Reset to first page when search or filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, testFilter]);
+
+  const loadUserTestCounts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('rezultati_kviza')
+        .select('user_email');
+
+      if (!error && data) {
+        const counts: Record<string, number> = {};
+        data.forEach(item => {
+          if (item.user_email) {
+            counts[item.user_email] = (counts[item.user_email] || 0) + 1;
+          }
+        });
+        setUserTestCounts(counts);
+      }
+    } catch (e) {
+      console.error("Error loading test counts:", e);
+    }
+  };
 
   const loadStats = async (range: TimeRange) => {
     try {
@@ -315,10 +342,17 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
     }));
   };
 
-  // Filter users based on search term
-  const filteredUsers = allowedUsers.filter(user => 
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter users based on search term and test filter
+  const filteredUsers = allowedUsers.filter(user => {
+    const searchMatch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const testCount = userTestCounts[user.email] || 0;
+    
+    let filterMatch = true;
+    if (testFilter === 'with_tests') filterMatch = testCount > 0;
+    else if (testFilter === 'no_tests') filterMatch = testCount === 0;
+
+    return searchMatch && filterMatch;
+  });
 
   // Pagination logic
   const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
@@ -556,7 +590,17 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
                   {filteredUsers.length} total
                 </Badge>
               </div>
-              <div style={{ width: '200px' }}>
+              <div className="d-flex gap-2" style={{ width: '350px' }}>
+                <Form.Select 
+                  size="sm" 
+                  value={testFilter} 
+                  onChange={(e) => setTestFilter(e.target.value as TestFilterType)}
+                  style={{ width: '140px' }}
+                >
+                  <option value="all">Svi korisnici</option>
+                  <option value="with_tests">Sa testovima</option>
+                  <option value="no_tests">Bez testova</option>
+                </Form.Select>
                 <Form.Control
                   type="text"
                   placeholder="Pretraži..."
@@ -597,6 +641,19 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
                           {new Date(user.created_at).toLocaleDateString('sr-RS')}
                         </td>
                         <td className="pe-4 text-end">
+                          {(userTestCounts[user.email] || 0) > 0 && (
+                            <Button 
+                              variant="link" 
+                              className="text-primary p-0 text-decoration-none me-3"
+                              onClick={() => {
+                                setHistoryUserEmail(user.email);
+                                setHistoryModalShow(true);
+                              }}
+                              title="Istorija kvizova"
+                            >
+                              Istorija
+                            </Button>
+                          )}
                           <Button 
                             variant="link" 
                             className="text-danger p-0 text-decoration-none"
@@ -671,6 +728,12 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
           </Card>
         </Col>
       </Row>
+
+      <QuizHistoryModal 
+        show={historyModalShow} 
+        onHide={() => setHistoryModalShow(false)} 
+        userEmail={historyUserEmail} 
+      />
     </Container>
   );
 };
