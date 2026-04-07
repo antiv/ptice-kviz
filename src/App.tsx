@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import StartScreen from './components/StartScreen';
 import QuizScreen from './components/QuizScreen';
@@ -49,24 +49,13 @@ const AppContent: React.FC = () => {
     return (localStorage.getItem('quizType') as QuizType) || 'oglasavanje';
   };
 
-  const getTitle = (): string => {
+  const getTitle = useCallback((): string => {
     if (gameState === 'admin' || gameState === 'preview') {
       return 'Ptice Srbije - Admin';
     }
     const quizType = getQuizType();
     return quizType === 'slike' ? 'Ptice Srbije - Izgled' : 'Ptice Srbije - Oglašavanje';
-  };
-
-  const getPageTitle = (): string => {
-    // Na login strani i strani sa izborom testa uvek prikaži "Ptice Srbije - BirdQ"
-    if (!user || gameState === 'start') {
-      return 'Ptice Srbije - BirdQ';
-    }
-    // Na ostalim stranama koristi dinamički naslov
-    return getTitle();
-  };
-
-
+  }, [gameState]);
   // Postavi naslov stranice
   useEffect(() => {
     if (!user || gameState === 'start') {
@@ -74,7 +63,7 @@ const AppContent: React.FC = () => {
     } else {
       document.title = getTitle();
     }
-  }, [user, gameState]);
+  }, [user, gameState, getTitle]);
 
   if (loading) {
     return (

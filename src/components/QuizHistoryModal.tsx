@@ -35,6 +35,7 @@ const QuizHistoryModal: React.FC<Props> = ({ show, onHide, userEmail }) => {
     if (show && userEmail) {
       fetchQuizHistory();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, userEmail]);
 
   const fetchQuizHistory = async () => {

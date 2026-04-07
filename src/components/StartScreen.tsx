@@ -223,10 +223,10 @@ const StartScreen: React.FC<Props> = ({ onStart, userEmail, isAdmin = false }) =
             </div>
             <div className="col-6 col-lg-3">
               <Button 
-                variant={!officialTestActive && !isAdmin ? "secondary" : officialTestAttempted && !isAdmin ? "secondary" : "danger"}
+                variant={(!officialTestActive && !isAdmin) ? "secondary" : officialTestAttempted && !isAdmin ? "secondary" : "danger"}
                 size="lg" 
                 onClick={handleOfficialTest}
-                disabled={!officialTestActive && !isAdmin || (officialTestAttempted && !isAdmin)}
+                disabled={(!officialTestActive && !isAdmin) || (officialTestAttempted && !isAdmin)}
                 className="rounded-3 w-100 py-2"
               >
                 {officialTestAttempted && !isAdmin ? "Zvanični test završen" : "Zvanični test"}

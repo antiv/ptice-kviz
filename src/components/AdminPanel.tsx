@@ -96,11 +96,9 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
   const loadStats = async (range: TimeRange) => {
     try {
       let startDate = new Date();
-      let groupBy = 'day'; // 'hour' or 'day'
 
       if (range === 'today') {
         startDate.setHours(0, 0, 0, 0);
-        groupBy = 'hour';
       } else if (range === '3days') {
         startDate.setDate(startDate.getDate() - 2); // Today included = 3 days
         startDate.setHours(0, 0, 0, 0);
