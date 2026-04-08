@@ -6,6 +6,7 @@ import {
   AreaChart, Area
 } from 'recharts';
 import QuizHistoryModal from './QuizHistoryModal';
+import DayTestsModal from './DayTestsModal';
 
 interface OfficialTestSettings {
   active: boolean;
@@ -23,6 +24,8 @@ interface AllowedUser {
 interface StatsData {
   date: string;
   fullDate: Date; // For sorting
+  startDate: string;
+  endDate: string;
   slike: number;
   oglasavanje: number;
   successRate: number;
@@ -30,7 +33,6 @@ interface StatsData {
 }
 
 type TimeRange = 'today' | '3days' | '7days' | 'month';
-type TestFilterType = 'all' | 'with_tests' | 'no_tests';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -53,45 +55,23 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [testFilter, setTestFilter] = useState<TestFilterType>('all');
   const [historyModalShow, setHistoryModalShow] = useState(false);
   const [historyUserEmail, setHistoryUserEmail] = useState('');
-  const [userTestCounts, setUserTestCounts] = useState<Record<string, number>>({});
+  const [dayModalData, setDayModalData] = useState<{ startDate: string, endDate: string, label: string } | null>(null);
 
   useEffect(() => {
     loadSettings();
     loadAllowedUsers();
-    loadUserTestCounts();
   }, []);
 
   useEffect(() => {
     loadStats(timeRange);
   }, [timeRange]);
 
-  // Reset to first page when search or filter changes
+  // Reset to first page when search changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, testFilter]);
-
-  const loadUserTestCounts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('rezultati_kviza')
-        .select('user_email');
-
-      if (!error && data) {
-        const counts: Record<string, number> = {};
-        data.forEach(item => {
-          if (item.user_email) {
-            counts[item.user_email] = (counts[item.user_email] || 0) + 1;
-          }
-        });
-        setUserTestCounts(counts);
-      }
-    } catch (e) {
-      console.error("Error loading test counts:", e);
-    }
-  };
+  }, [searchTerm]);
 
   const loadStats = async (range: TimeRange) => {
     try {
@@ -122,21 +102,30 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
       }
 
       if (data) {
-        const statsMap = new Map<string, { slike: number; oglasavanje: number; totalScore: number; totalQuestions: number }>();
+        const statsMap = new Map<string, { startDate: string, endDate: string, slike: number; oglasavanje: number; totalScore: number; totalQuestions: number }>();
         
         // Initialize periods
         if (range === 'today') {
           // 24 hours
           for (let i = 0; i < 24; i++) {
             const label = `${i.toString().padStart(2, '0')}:00`;
-            statsMap.set(label, { slike: 0, oglasavanje: 0, totalScore: 0, totalQuestions: 0 });
+            const sDate = new Date();
+            sDate.setHours(i, 0, 0, 0);
+            const eDate = new Date(sDate);
+            eDate.setHours(i, 59, 59, 999);
+            statsMap.set(label, { startDate: sDate.toISOString(), endDate: eDate.toISOString(), slike: 0, oglasavanje: 0, totalScore: 0, totalQuestions: 0 });
           }
         } else {
           // Days
           const end = new Date();
+          end.setHours(23, 59, 59, 999);
           for (let d = new Date(startDate); d <= end; d.setDate(d.getDate() + 1)) {
             const label = d.toLocaleDateString('sr-RS', { day: 'numeric', month: 'short' });
-            statsMap.set(label, { slike: 0, oglasavanje: 0, totalScore: 0, totalQuestions: 0 });
+            const sDate = new Date(d);
+            sDate.setHours(0, 0, 0, 0);
+            const eDate = new Date(d);
+            eDate.setHours(23, 59, 59, 999);
+            statsMap.set(label, { startDate: sDate.toISOString(), endDate: eDate.toISOString(), slike: 0, oglasavanje: 0, totalScore: 0, totalQuestions: 0 });
           }
         }
 
@@ -177,6 +166,8 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
           return {
             date,
             fullDate: new Date(), // Not strictly used for sorting anymore since map is ordered
+            startDate: val.startDate,
+            endDate: val.endDate,
             slike: val.slike,
             oglasavanje: val.oglasavanje,
             successRate: Math.max(0, successRate), // No negative percentage
@@ -340,17 +331,10 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
     }));
   };
 
-  // Filter users based on search term and test filter
-  const filteredUsers = allowedUsers.filter(user => {
-    const searchMatch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const testCount = userTestCounts[user.email] || 0;
-    
-    let filterMatch = true;
-    if (testFilter === 'with_tests') filterMatch = testCount > 0;
-    else if (testFilter === 'no_tests') filterMatch = testCount === 0;
-
-    return searchMatch && filterMatch;
-  });
+  // Filter users based on search term
+  const filteredUsers = allowedUsers.filter(user => 
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // Pagination logic
   const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
@@ -402,11 +386,18 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
             {/* Tests Graph */}
             <Col lg={8} className="mb-4 mb-lg-0">
               <h6 className="text-muted mb-3 small text-uppercase fw-bold">Broj Urađenih Testova</h6>
-              <div style={{ height: '300px' }}>
-                <ResponsiveContainer width="100%" height="100%">
+              <div style={{ width: '100%', height: 300 }}>
+                <ResponsiveContainer width="100%" height="100%" minWidth={1}>
                   <LineChart
                     data={statsData}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    onClick={(e: any) => {
+                      if (e && e.activePayload && e.activePayload.length > 0) {
+                        const payload = e.activePayload[0].payload as StatsData;
+                        setDayModalData({ startDate: payload.startDate, endDate: payload.endDate, label: payload.date });
+                      }
+                    }}
+                    style={{ cursor: 'pointer' }}
                   >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e9ecef" />
                     <XAxis 
@@ -425,6 +416,7 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
                     />
                     <Tooltip 
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+                      cursor={{ fill: 'transparent' }}
                     />
                     <Legend wrapperStyle={{ paddingTop: '10px' }} />
                     <Line 
@@ -433,7 +425,15 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
                       name="Oglašavanje" 
                       stroke="#198754" 
                       strokeWidth={2} 
-                      activeDot={{ r: 6 }} 
+                      activeDot={{ 
+                        r: 6,
+                        onClick: (e: any, payload: any) => {
+                          if (payload && payload.payload) {
+                            const data = payload.payload as StatsData;
+                            setDayModalData({ startDate: data.startDate, endDate: data.endDate, label: data.date });
+                          }
+                        }
+                      }} 
                       dot={false}
                     />
                     <Line 
@@ -442,7 +442,15 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
                       name="Izgled" 
                       stroke="#0dcaf0" 
                       strokeWidth={2} 
-                      activeDot={{ r: 6 }} 
+                      activeDot={{ 
+                        r: 6,
+                        onClick: (e: any, payload: any) => {
+                          if (payload && payload.payload) {
+                            const data = payload.payload as StatsData;
+                            setDayModalData({ startDate: data.startDate, endDate: data.endDate, label: data.date });
+                          }
+                        }
+                      }} 
                       dot={false}
                     />
                   </LineChart>
@@ -588,17 +596,7 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
                   {filteredUsers.length} total
                 </Badge>
               </div>
-              <div className="d-flex gap-2" style={{ width: '350px' }}>
-                <Form.Select 
-                  size="sm" 
-                  value={testFilter} 
-                  onChange={(e) => setTestFilter(e.target.value as TestFilterType)}
-                  style={{ width: '140px' }}
-                >
-                  <option value="all">Svi korisnici</option>
-                  <option value="with_tests">Sa testovima</option>
-                  <option value="no_tests">Bez testova</option>
-                </Form.Select>
+              <div style={{ width: '200px' }}>
                 <Form.Control
                   type="text"
                   placeholder="Pretraži..."
@@ -639,19 +637,17 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
                           {new Date(user.created_at).toLocaleDateString('sr-RS')}
                         </td>
                         <td className="pe-4 text-end">
-                          {(userTestCounts[user.email] || 0) > 0 && (
-                            <Button 
-                              variant="link" 
-                              className="text-primary p-0 text-decoration-none me-3"
-                              onClick={() => {
-                                setHistoryUserEmail(user.email);
-                                setHistoryModalShow(true);
-                              }}
-                              title="Istorija kvizova"
-                            >
-                              Istorija
-                            </Button>
-                          )}
+                          <Button 
+                            variant="link" 
+                            className="text-primary p-0 text-decoration-none me-3"
+                            onClick={() => {
+                              setHistoryUserEmail(user.email);
+                              setHistoryModalShow(true);
+                            }}
+                            title="Istorija kvizova"
+                          >
+                            Istorija
+                          </Button>
                           <Button 
                             variant="link" 
                             className="text-danger p-0 text-decoration-none"
@@ -731,6 +727,14 @@ const AdminPanel: React.FC<Props> = ({ onNavigate }) => {
         show={historyModalShow} 
         onHide={() => setHistoryModalShow(false)} 
         userEmail={historyUserEmail} 
+      />
+
+      <DayTestsModal
+        show={!!dayModalData}
+        onHide={() => setDayModalData(null)}
+        startDate={dayModalData?.startDate || null}
+        endDate={dayModalData?.endDate || null}
+        label={dayModalData?.label || ''}
       />
     </Container>
   );
